@@ -1,0 +1,5 @@
+default_events:
+  - workflow_run
+
+default_permissions:
+  actions: read

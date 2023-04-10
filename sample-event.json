@@ -1,0 +1,124 @@
+{
+  "id": 4632507665,
+  "name": "My Manual workflow",
+  "node_id": "WFR_kwLOGhxtds8AAAABFB51EQ",
+  "head_branch": "main",
+  "head_sha": "e520e6be1fe77f26fccfc3b6c6b3ac6be966fa05",
+  "path": ".github/workflows/my-manual.yml",
+  "display_title": "My Manual workflow",
+  "run_number": 3,
+  "event": "workflow_dispatch",
+  "status": "completed",
+  "conclusion": "success",
+  "workflow_id": 24917006,
+  "check_suite_id": 12080984266,
+  "check_suite_node_id": "CS_kwDOGhxtds8AAAAC0BUwyg",
+  "url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665",
+  "html_url": "https://github.com/enyilCorp/Actions-Demo/actions/runs/4632507665",
+  "pull_requests": [],
+  "created_at": "2023-04-06T19:48:15Z",
+  "updated_at": "2023-04-06T19:48:25Z",
+  "actor": "enyil",
+  "run_attempt": 1,
+  "referenced_workflows": [],
+  "run_started_at": "2023-04-06T19:48:15Z",
+  "triggering_actor": "enyil",
+  "jobs_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665/jobs",
+  "logs_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665/logs",
+  "check_suite_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/check-suites/12080984266",
+  "artifacts_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665/artifacts",
+  "cancel_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665/cancel",
+  "rerun_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/runs/4632507665/rerun",
+  "previous_attempt_url": null,
+  "workflow_url": "https://api.github.com/repos/enyilCorp/Actions-Demo/actions/workflows/24917006",
+  "head_commit": {
+    "id": "e520e6be1fe77f26fccfc3b6c6b3ac6be966fa05",
+    "tree_id": "4f94561743ecf4a9fae350b34fd771384d95e628",
+    "message": "This is a commit from Visual Studio",
+    "timestamp": "2023-02-22T15:11:15Z",
+    "author": {
+      "name": "enyil",
+      "email": "enyil@github.com"
+    },
+    "committer": {
+      "name": "enyil",
+      "email": "enyil@github.com"
+    }
+  },
+  "repository": "enyilCorp/Actions-Demo",
+  "head_repository": "enyilCorp/Actions-Demo",
+  "jobs": [
+    {
+      "jobName": "bye",
+      "sequence": 1,
+      "labelsRequested": "ubuntu-latest",
+      "runnerGroupRequested": null,
+      "runnerGroupMatched": null,
+      "runnerOS": "Ubuntu 22.04.2 LTS",
+      "runnerImage": "Image: ubuntu-22.04 Version: 20230402.1 Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20230402.1/images/linux/Ubuntu2204-Readme.md Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20230402.1",
+      "runnerImageProvisioner": "2.0.139.1",
+      "permissions": {
+        "Actions": "write",
+        "Checks": "write",
+        "Contents": "write",
+        "Deployments": "write",
+        "Discussions": "write",
+        "Issues": "write",
+        "Metadata": "read",
+        "Packages": "write",
+        "Pages": "write",
+        "PullRequests": "write",
+        "RepositoryProjects": "write",
+        "SecurityEvents": "write",
+        "Statuses": "write"
+      },
+      "actions": [],
+      "startedAt": "2023-04-06T19:48:17.1659046Z",
+      "completedAt": "2023-04-06T19:48:22.9660528Z",
+      "conclusion": "success",
+      "logs": "",
+      "steps": [
+        {
+          "stepName": "Set up job",
+          "sequence": 1,
+          "action": "",
+          "run": "2.0.139.1",
+          "startedAt": "2023-04-06T19:48:22.5572720Z",
+          "completedAt": "2023-04-06T19:48:22.6719756Z",
+          "conclusion": "success",
+          "logs": ""
+        },
+        {
+          "stepName": "print secret",
+          "sequence": 2,
+          "action": "",
+          "run": "\r\necho \"my secret is ***\"\u001b[0m\n\rshell: /usr/bin/bash -e {0}",
+          "startedAt": "2023-04-06T19:48:22.7956156Z",
+          "completedAt": "2023-04-06T19:48:22.9088159Z",
+          "conclusion": "success",
+          "logs": ""
+        },
+        {
+          "stepName": "Send greeting",
+          "sequence": 3,
+          "action": "",
+          "run": "\r\necho \"Hello World\"\u001b[0m\n\rshell: /usr/bin/bash -e {0}",
+          "startedAt": "2023-04-06T19:48:22.9275359Z",
+          "completedAt": "2023-04-06T19:48:22.9535437Z",
+          "conclusion": "success",
+          "logs": ""
+        },
+        {
+          "stepName": "Complete job",
+          "sequence": 4,
+          "action": "",
+          "run": null,
+          "startedAt": "2023-04-06T19:48:22.9660509Z",
+          "completedAt": "2023-04-06T19:48:22.9660509Z",
+          "conclusion": "success",
+          "logs": ""
+        }
+      ]
+    }
+  ]
+}
