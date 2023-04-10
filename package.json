@@ -1,11 +1,11 @@
 {
-  "name": "splunk-for-actions",
+  "name": "beaver",
   "version": "1.0.0",
   "private": true,
-  "description": "A GitHub App built with Probot that logs actions to Splunk",
+  "description": "A GitHub App built with Probot that logs actions",
   "author": "Enyil Padilla <enyil@github.com>",
   "license": "ISC",
-  "homepage": "https://github.com/enyil/splunk-for-actions#readme",
+  "homepage": "https://github.com/octodemo/beaver#readme",
   "keywords": [
     "probot",
     "github",
