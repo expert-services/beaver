@@ -31,7 +31,7 @@ jobs:
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           npm install
           npm run build --if-present
-          # npm run test --if-present
+          npm run test --if-present
           popd
 
       - name: 'Run Azure Functions Action'
@@ -41,4 +41,4 @@ jobs:
           app-name: 'yj-action-metrics-function-app'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_50B793F32B134C44980A3DF4A5CD6F3F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FAF042F749F4585A9BA9B0CA685C213 }}
