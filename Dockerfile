@@ -1,7 +1,7 @@
 FROM node:12-slim
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --omit=dev
 RUN npm cache clean --force
 ENV NODE_ENV="production"
 COPY . .
