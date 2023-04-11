@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "dev": "nodemon",
-    "start": "./node_modules/probot/bin/probot.js run ./index.js",
+    "start": "probot run ./index.js",
     "test": "npm-run-all --print-label --parallel lint:* --parallel test:*",
     "lint:es": "eslint .",
     "lint:js": "standard",
