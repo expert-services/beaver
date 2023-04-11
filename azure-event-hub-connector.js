@@ -31,7 +31,7 @@ module.exports = class AzureEventHubConnector {
             return false;
         }
         try {
-            const serviceBusClient = createServiceBusClient();
+            const serviceBusClient = this.createServiceBusClient();
             await serviceBusClient.close();
             return true;
         } catch (err) {
@@ -45,8 +45,8 @@ module.exports = class AzureEventHubConnector {
             return;
         }
         try {
-          const serviceBusClient = createServiceBusClient();
-          await sendLogsToBus(serviceBusClient, workflowRunData);
+          const serviceBusClient = this.createServiceBusClient();
+          await this.sendLogsToBus(serviceBusClient, workflowRunData);
           await serviceBusClient.close();
           log.debug(`Logs forwarded to Azure Event Hub with status`);
         } catch (err) {
@@ -93,4 +93,3 @@ module.exports = class AzureEventHubConnector {
       }
 
 }
-
