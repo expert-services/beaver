@@ -1,7 +1,7 @@
 # Probot application for forwarding logs
 This is a Probot application that listens for a `workflow_run` event in a GitHub repository, downloads the logs for the workflow run using the GitHub REST API, and forwards the logs to an Azure Event Hub. This Probot application be deployed as an Azure Web App to automatically monitor and forward logs from multiple GitHub orgs a variety of data stores to be viewed with various data visualization programs. The Azure Event Hub connection string (and other credentials used for authentication) are retrieved from Configuration Settings (environment variables) of the Azure Web App, so they can be easily configured for different environments. 
 
-![image](https://user-images.githubusercontent.com/107562400/231469457-121b66c2-ab50-42dd-a4da-e7dce2bf37ad.png)
+![image](https://user-images.githubusercontent.com/107562400/231474049-a415ef70-2fd0-4e20-83b2-a35a848906a0.png)
 
 ### Requirements
 To use this Probot application, you’ll need the following:
