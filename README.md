@@ -8,7 +8,11 @@ This Probot application can be deployed as an Azure Web App (via docker containe
 
  Connection strings (and other credentials used for authentication) are stored and retrieved from Configuration Settings (e.g., environment variables) of a given Azure Web App, enabling the application to be easily configured for different environments. 
 
+### Functional Architecture
 ![image](https://user-images.githubusercontent.com/107562400/231777818-2a43fbb8-d85d-45a4-8313-8441785e4301.png)
+
+### Sample Dashboard
+![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
 
 ## Background
 Data is (and always has been) [the new _soil_](https://www.ted.com/talks/david_mccandless_the_beauty_of_data_visualization). It is now easier than ever to gather insights from data given the improvements in modern data visualization tools. However, it has historically been complex to gather, manipulate, and store large amounts of data. Especially streaming data sources, such as webhooks and CI/CD job logs. This, along with there not yet being rich features supporting the displaying of metrics and insights for Actions usage on GitHub sets the stage for a problem that is
