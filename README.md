@@ -56,3 +56,6 @@ WEBHOOK_SECRET=<your GitHub App webhook secret>
 ```
 
 Replace the values in angle brackets with your own values. You can obtain your GitHub App ID and webhook secret by  [creating a new GitHub App](https://docs.github.com/en/developers/apps/creating-a-github-app). 
+
+## Acknowledgements
+The code for this application was originally drafted by @enyil and @decyjpher, and I have mearly stood on their gigantic shoulders by centralizing efforts in this repository.
