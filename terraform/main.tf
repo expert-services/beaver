@@ -2,7 +2,6 @@ provider "azurerm" {
   features {}
 }
 
-# Declare the GitHub orgs that have the GitHub App installed
 locals {
   orgs = toset([
     "oodles-noodles",
@@ -37,7 +36,6 @@ resource "azurerm_service_plan" "beaver-asp" {
   sku_name            = "P1v3"
 }
 
-# Create an Azure Event Hub namespace
 resource "azurerm_eventhub_namespace" "beaver" {
   name                = "beaver-eventhub-ns"
   location            = azurerm_resource_group.beaver.location
@@ -46,7 +44,6 @@ resource "azurerm_eventhub_namespace" "beaver" {
   capacity            = 1
 }
 
-# Create an Azure Event Hub
 resource "azurerm_eventhub" "beaver" {
   name                = "beaver-eventhub"
   namespace_name      = azurerm_eventhub_namespace.beaver.name
@@ -65,7 +62,6 @@ resource "random_uuid" "transform4" {}
 resource "random_uuid" "transform5" {}
 resource "random_uuid" "transform6" {}
 
-# Create an Azure Stream Analytics job
 resource "azurerm_stream_analytics_job" "beaver" {
   name                = "beaver-sa-job"
   location            = azurerm_resource_group.beaver.location
@@ -386,7 +382,6 @@ resource "azurerm_stream_analytics_job" "beaver" {
   }
 }
 
-# Create an Azure Stream Analytics input for Event Hub
 resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
   name                      = "${random_uuid.input.result}-input"
   stream_analytics_job_name = azurerm_stream_analytics_job.beaver.name
@@ -402,7 +397,6 @@ resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
   }
 }
 
-# Create an Azure Stream Analytics output for Power BI
 resource "azurerm_stream_analytics_output_powerbi" "powerbi-stream" {
   name                    = random_uuid.output.result
   stream_analytics_job_id = azurerm_stream_analytics_job.beaver.id
