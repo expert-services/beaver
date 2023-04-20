@@ -2,6 +2,16 @@ provider "azurerm" {
   features {}
 }
 
+# Declare the GitHub orgs that have the GitHub App installed
+locals {
+  orgs = toset([
+    "oodles-noodles",
+    "octodemo",
+    "green",
+    "red",
+  ])
+}
+
 resource "azurerm_resource_group" "beaver" {
   name     = "beaver"
   location = "eastus"
@@ -37,7 +47,7 @@ resource "azurerm_eventhub" "beaver" {
 resource "random_uuid" "input" {}
 resource "random_uuid" "output" {}
 resource "random_uuid" "transform1" {}
-resource "random_uuid" "transform2" {}a
+resource "random_uuid" "transform2" {}
 resource "random_uuid" "transform3" {}
 resource "random_uuid" "transform4" {}
 resource "random_uuid" "transform5" {}
@@ -390,8 +400,21 @@ resource "azurerm_stream_analytics_output_powerbi" "powerbi-stream" {
   group_name              = "some-group-name"
 }
 
+# Start the Azure Stream Analytics job 
+resource "azurerm_stream_analytics_job_schedule" "beaver" {
+  stream_analytics_job_id = azurerm_stream_analytics_job.beaver.id
+  start_mode              = "JobStartTime"
+
+  depends_on = [
+    azurerm_stream_analytics_job.beaver,
+    azurerm_stream_analytics_stream_input_eventhub.beaver,
+    azurerm_stream_analytics_output_powerbi.powerbi-stream,
+  ]
+}
+
 resource "azurerm_linux_web_app" "beaver-app" {
-  name                = "beaver-webapp"
+  for_each = local.orgs # The way this works will need attention if / when the actual GitHub Apps are created as part of this template
+  name     = "beaver-probot-${each.key}"
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
@@ -399,7 +422,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   app_settings = {
         "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string 
         "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
-        "WEBHOOK_SECRET"                    = "test1"
+        "WEBHOOK_SECRET"                    = "test1" 
         "APP_ID"                            = "test1"
         "PRIVATE_KEY"                       = "test1"
     }
