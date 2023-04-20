@@ -30,8 +30,8 @@ resource "azurerm_eventhub_namespace" "beaver" {
   name                = "beaver-eventhub-ns"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
-  sku = "Standard"
-  capacity = 1
+  sku                 = "Standard"
+  capacity            = 1
 }
 
 # Create an Azure Event Hub
@@ -40,7 +40,7 @@ resource "azurerm_eventhub" "beaver" {
   namespace_name      = azurerm_eventhub_namespace.beaver.name
   resource_group_name = azurerm_resource_group.beaver.name
   partition_count     = 2
-  message_retention = 1
+  message_retention   = 1
 }
 
 # Create needed UUIDs for Azure Stream Analytics query
@@ -376,16 +376,16 @@ resource "azurerm_stream_analytics_job" "beaver" {
 
 # Create an Azure Stream Analytics input for Event Hub
 resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
-  name                =  "${random_uuid.input.result}-input"
+  name                      = "${random_uuid.input.result}-input"
   stream_analytics_job_name = azurerm_stream_analytics_job.beaver.name
-  resource_group_name = azurerm_resource_group.beaver.name
-  servicebus_namespace         = azurerm_eventhub_namespace.beaver.name
-  eventhub_name                = azurerm_eventhub.beaver.name
-  shared_access_policy_key     = azurerm_eventhub_namespace.beaver.default_primary_key
-  shared_access_policy_name    = "RootManageSharedAccessKey"
+  resource_group_name       = azurerm_resource_group.beaver.name
+  servicebus_namespace      = azurerm_eventhub_namespace.beaver.name
+  eventhub_name             = azurerm_eventhub.beaver.name
+  shared_access_policy_key  = azurerm_eventhub_namespace.beaver.default_primary_key
+  shared_access_policy_name = "RootManageSharedAccessKey"
 
   serialization {
-    type = "Json"
+    type     = "Json"
     encoding = "UTF8"
   }
 }
@@ -413,23 +413,23 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
 }
 
 resource "azurerm_linux_web_app" "beaver-app" {
-  for_each = local.orgs # The way this works will need attention if / when the actual GitHub Apps are created as part of this template
-  name     = "beaver-probot-${each.key}"
+  for_each            = local.orgs # The way this works will need attention if / when the actual GitHub Apps are created as part of this template
+  name                = "beaver-probot-${each.key}"
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
 
   app_settings = {
-        "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string 
-        "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
-        "WEBHOOK_SECRET"                    = "test1" 
-        "APP_ID"                            = "test1"
-        "PRIVATE_KEY"                       = "test1"
-    }
-  
+    "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
+    "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
+    "WEBHOOK_SECRET"                    = "test1"
+    "APP_ID"                            = "test1"
+    "PRIVATE_KEY"                       = "test1"
+  }
+
   site_config {
     application_stack {
-      docker_image = "yjactionsmetrics.azurecr.io/beaver"
+      docker_image     = "yjactionsmetrics.azurecr.io/beaver"
       docker_image_tag = "latest"
     }
   }

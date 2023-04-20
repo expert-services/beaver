@@ -7,11 +7,13 @@ on:
     paths-ignore:
       - '.github/workflows/**'
       - 'README.md'
+      - 'terraform/**'
   pull_request:
     branches: ['main']
     paths-ignore:
       - '.github/workflows/**'
       - 'README.md'
+      - 'terraform/**'
 
 env:
   IMAGE_NAME: beaver
