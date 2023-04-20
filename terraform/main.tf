@@ -10,6 +10,18 @@ locals {
     "green",
     "red",
   ])
+
+  powerbi_config = {
+    dataset    = "actions-workflow-data"
+    table      = "data"
+    group_id   = "00000000-0000-0000-0000-000000000000"
+    group_name = "some-group-name"
+  }
+
+  docker_config = {
+    image = "yjactionsmetrics.azurecr.io/beaver"
+    tag   = "latest"
+  }
 }
 
 resource "azurerm_resource_group" "beaver" {
@@ -394,10 +406,10 @@ resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
 resource "azurerm_stream_analytics_output_powerbi" "powerbi-stream" {
   name                    = random_uuid.output.result
   stream_analytics_job_id = azurerm_stream_analytics_job.beaver.id
-  dataset                 = "actions-workflow-data"
-  table                   = "data"
-  group_id                = "00000000-0000-0000-0000-000000000000"
-  group_name              = "some-group-name"
+  dataset                 = local.powerbi_config.dataset
+  table                   = local.powerbi_config.table
+  group_id                = local.powerbi_config.group_id
+  group_name              = local.powerbi_config.group_name
 }
 
 # Start the Azure Stream Analytics job 
@@ -429,8 +441,8 @@ resource "azurerm_linux_web_app" "beaver-app" {
 
   site_config {
     application_stack {
-      docker_image     = "yjactionsmetrics.azurecr.io/beaver"
-      docker_image_tag = "latest"
+      docker_image     = local.docker_config.image
+      docker_image_tag = local.docker_config.tag
     }
   }
 }
