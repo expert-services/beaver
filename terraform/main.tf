@@ -5,16 +5,14 @@ provider "azurerm" {
 locals {
   orgs = toset([
     "oodles-noodles",
-    "octodemo",
-    "green",
-    "red",
+    "octodemo"
   ])
 
   powerbi_config = {
     dataset    = "actions-workflow-data"
     table      = "data"
-    group_id   = "00000000-0000-0000-0000-000000000000"
-    group_name = "some-group-name"
+    group_id   = "ce7f2c58-fbc7-4e02-a3a3-0da8231f67fa"  
+    group_name = "github-inc"
   }
 
   docker_config = {

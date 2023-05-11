@@ -21,17 +21,24 @@ Data is (and always has been) [the new _soil_](https://www.ted.com/talks/david_m
 * A feasible area to make progress in
 
 ## Requirements
-ToDo
+1. A GitHub App must be installed and configured on each Organization 
 
 ### Azure Infrastructure 
+Infrastructure is required to process webhook events, as well as gather and transform GitHub Actions log data. A variety of Azure services are used to provide the needed runtimes, configurations, and storage that allows for easy reporting layers to be integrated.
 
-1. Create Azure Resource Group
-2. Create Azure App Service Plan
-3. Create Application Insights
-4. Create Azure App Service
-5. Create Event Hub Namespace
-6. Create Event Hub
-7. Create Stream Analytics Job
+#### Terraform
+Terraform can be used to automatically deploy the required infrastructure. 
+
+1. Navigate to or create a directory that will contain the Terraform state information, and initialize the directory by using the `terraform init` command
+2. Copy [terraform/main.tf](terraform/main.tf) into the working directory
+3. Adjust the `locals` parameter to include the GitHub Orgs that have GitHub Apps installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser  
+4. Login to Azure using the `az login` command (assuming you have the `az cli` installed)
+5. Use the `terraform plan` command to create a plan for the infrastructure that will be created, and inspect it if desired
+6. Use the `terraform apply` command to deploy the infrastructure
+
+> **Note**
+> If using the [terraform/main.tf](terraform/main.tf) template, resource will be deployed in the East US region
+
 
 #### App Service Plan
 
