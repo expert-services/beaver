@@ -1,0 +1,40 @@
+name: Deploy to ACR
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main']
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'terraform/**'
+  pull_request:
+    branches: ['main']
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'terraform/**'
+
+env:
+  IMAGE_NAME: beaver
+
+jobs:
+  build:
+    name: Build container image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Log into registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ vars.ACR_ENDPOINT }}
+          username: ${{ vars.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: Build & Push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          build-args: |
+            version=latest
+          tags: ${{ vars.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}:latest
