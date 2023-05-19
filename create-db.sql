@@ -1,5 +1,6 @@
 CREATE TABLE runs (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    run_id INTEGER,
     name TEXT,
     node_id TEXT,
     head_branch TEXT,
@@ -36,6 +37,7 @@ CREATE TABLE runs (
 
 CREATE TABLE jobs (
     id SERIAL PRIMARY KEY,
+    job_id INTEGER,
     jobName TEXT,
     sequence INTEGER,
     labelsRequested TEXT,

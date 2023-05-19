@@ -134,7 +134,7 @@ module.exports = (app) => {
 
     // Send the events to Azure Event Hubs
     app.log.info(`Sending event ${JSON.stringify(workflow_job, null, 2)}`);
-    await sendLogs(workflow_job, app.log);
+    await sendJobLogs(workflow_job, app.log);
   });
 };
 
@@ -241,6 +241,13 @@ async function processZipFiles(logs, log) {
     return { jobs };
   });
 
+}
+
+async function sendJobLogs(workflowRunData, log) {
+  if(azureEventHubConnector.isEnabled ) {
+    log.info("Sending logs to Azure Event Hubs")
+    await azureEventHubConnector.sendLogsToAzureEventHubs(workflowRunData, log);
+  }
 }
 
 async function sendLogs(workflowRunData, log) {
