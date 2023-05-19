@@ -7,6 +7,11 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  use_oidc = true
+  features {}
+}
+
 locals {
   orgs = toset([
     "oodles-noodles",
