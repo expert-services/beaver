@@ -306,10 +306,145 @@ class PostgreSQLConnector {
                 await client.query(stepsTableQuery);
                 console.log('steps table created');
             };
-            const needMigration = await needMigration(client); // check if the tables need migration
-            if (needMigration) {
-                await migrateTables(client); // migrate the tables
-            }
+            var needMigration = false;
+            const checkTableQueries = [
+              `
+              SELECT data_type 
+              FROM information_schema.columns 
+              WHERE table_name = 'runs' 
+              AND column_name = 'id';
+              `,
+              `
+              SELECT data_type 
+              FROM information_schema.columns 
+              WHERE table_name = 'jobs' 
+              AND column_name = 'id';
+              `
+          ];
+        
+          try {
+              const results = await Promise.all(checkTableQueries.map(query => client.query(query)));
+              // If the data_type of 'id' column in either 'runs' or 'jobs' table is 'bigint', then migration is needed
+              needMigration = results.some(result => result.rows[0].data_type === 'bigint');
+          } catch (err) {
+              console.error('Error checking tables:', err);
+              needMigration = false;
+          }
+          if (needMigration) {
+                // Begin transaction
+                await client.query('BEGIN');
+                try {
+                    // Create temporary tables with new schema
+                    const createTempTablesQueries = [
+                        `
+                        CREATE TABLE runs_temp AS TABLE runs WITH NO DATA;
+                        ALTER TABLE runs_temp DROP COLUMN id;
+                        ALTER TABLE runs_temp ADD COLUMN id SERIAL PRIMARY KEY;
+                        ALTER TABLE runs_temp ADD COLUMN run_id BIGINT;
+                        `,
+                        `
+                        CREATE TABLE jobs_temp AS TABLE jobs WITH NO DATA;
+                        ALTER TABLE jobs_temp DROP COLUMN id;
+                        ALTER TABLE jobs_temp ADD COLUMN id SERIAL PRIMARY KEY;
+                        ALTER TABLE jobs_temp ADD COLUMN job_id BIGINT;
+                        `,
+                        `
+                        CREATE TABLE steps_temp AS TABLE steps WITH NO DATA;
+                        `
+                    ];
+
+                    for (const query of createTempTablesQueries) {
+                        await client.query(query);
+                    }
+
+                    // Copy data from the old tables to the new ones with new mapping
+                    await client.query(`
+                        INSERT INTO runs_temp (run_id, name, node_id, head_branch, head_sha, path, display_title, run_number, event, status, conclusion, workflow_id, check_suite_id, check_suite_node_id, url, html_url, created_at, updated_at, actor, run_attempt, referenced_workflows, run_started_at, triggering_actor, jobs_url, logs_url, check_suite_url, artifacts_url, cancel_url, rerun_url, previous_attempt_url, workflow_url, repository, head_repository) 
+                        SELECT id, name, node_id, head_branch, head_sha, path, display_title, run_number, event, status, conclusion, workflow_id, check_suite_id, check_suite_node_id, url, html_url, created_at, updated_at, actor, run_attempt, referenced_workflows, run_started_at, triggering_actor, jobs_url, logs_url, check_suite_url, artifacts_url, cancel_url, rerun_url, previous_attempt_url, workflow_url, repository, head_repository
+                        FROM runs;
+                    `);
+
+                    await client.query(`
+                        INSERT INTO jobs_temp (job_id, run_id, jobName, sequence, labelsRequested, runnerGroupRequested, runnerGroupMatched, runnerOS, runnerImage, runnerImageProvisioner, permissions, actions, startedAt, completedAt, conclusion, logs ) 
+                        SELECT jobs.id, runs_temp.id, jobs.jobName, jobs.sequence, jobs.labelsRequested, jobs.runnerGroupRequested, jobs.runnerGroupMatched, jobs.runnerOS, jobs.runnerImage, jobs.runnerImageProvisioner, jobs.permissions, jobs.actions, jobs.startedAt, jobs.completedAt, jobs.conclusion, jobs.logs
+                        FROM jobs 
+                        JOIN runs_temp ON runs_temp.run_id = jobs.run_id;
+                    `);
+
+                    await client.query(`
+                        INSERT INTO steps_temp (job_id, stepName, sequence, action, run, startedAt, completedAt, conclusion, logs)
+                        SELECT jobs_temp.id, steps.stepName, steps.sequence, steps.action, steps.run, steps.startedAt, steps.completedAt, steps.conclusion, steps.logs
+                        FROM steps 
+                        JOIN jobs_temp ON jobs_temp.job_id = steps.job_id;
+                    `);
+
+                    const runsTablePermissions = await client.query(`
+                        SELECT grantee, privilege_type
+                        FROM information_schema.table_privileges
+                        WHERE table_name = $1;
+                    `, ['runs']);
+
+                    const jobsTablePermissions = await client.query(`
+                        SELECT grantee, privilege_type
+                        FROM information_schema.table_privileges
+                        WHERE table_name = $1;
+                    `, ['jobs']);
+
+                    const stepsTablePermissions = await client.query(`
+                        SELECT grantee, privilege_type
+                        FROM information_schema.table_privileges
+                        WHERE table_name = $1;
+                    `, ['steps']);
+
+                    await client.query(`
+                        ALTER TABLE jobs DROP CONSTRAINT IF EXISTS jobs_run_id_fkey;
+                        ALTER TABLE steps DROP CONSTRAINT IF EXISTS steps_job_id_fkey;
+                    `);
+
+                    // Drop the old tables
+                    const dropOldTablesQueries = [
+                        `DROP TABLE runs;`,
+                        `DROP TABLE jobs;`,
+                        `DROP TABLE steps;`
+                    ];
+
+                    for (const query of dropOldTablesQueries) {
+                        await client.query(query);
+                    }
+
+                    // Rename the new tables to the original names
+                    const renameTablesQueries = [
+                        `ALTER TABLE runs_temp RENAME TO runs;`,
+                        `ALTER TABLE jobs_temp RENAME TO jobs;`,
+                        `ALTER TABLE steps_temp RENAME TO steps;`
+                    ];
+
+                    for (const query of renameTablesQueries) {
+                        await client.query(query);
+                    }
+
+                    try {
+                      // Set the permissions of the new tables
+                      for (const { grantee, privilege_type } of runsTablePermissions.rows) {
+                        await client.query(`GRANT ${privilege_type} ON runs TO ${grantee};`);
+                      }
+                      for (const { grantee, privilege_type } of jobsTablePermissions.rows) {
+                          await client.query(`GRANT ${privilege_type} ON jobs TO ${grantee};`);
+                      }
+                      for (const { grantee, privilege_type } of stepsTablePermissions.rows) {
+                          await client.query(`GRANT ${privilege_type} ON steps TO ${grantee};`);
+                      }
+                    } catch (err) {
+                      console.error('error migrating permissions, might need to create manually.', err);
+                    }
+
+                    // Commit transaction
+                    await client.query('COMMIT');
+                } catch (err) {
+                    await client.query('ROLLBACK');
+                    throw err;
+                }
+          }
         } catch (err) {
             ;
             console.error('Error creating tables:', err);
@@ -319,30 +454,7 @@ class PostgreSQLConnector {
     }
 
     async needMigration(client) {
-      const checkTableQueries = [
-          `
-          SELECT data_type 
-          FROM information_schema.columns 
-          WHERE table_name = 'runs' 
-          AND column_name = 'id';
-          `,
-          `
-          SELECT data_type 
-          FROM information_schema.columns 
-          WHERE table_name = 'jobs' 
-          AND column_name = 'id';
-          `
-      ];
-  
-      try {
-          const results = await Promise.all(checkTableQueries.map(query => client.query(query)));
-  
-          // If the data_type of 'id' column in either 'runs' or 'jobs' table is 'bigint', then migration is needed
-          return results.some(result => result.rows[0].data_type === 'bigint');
-      } catch (err) {
-          console.error('Error checking tables:', err);
-          return false;
-      }
+      
   }
 
   async migrateTables(client) {
