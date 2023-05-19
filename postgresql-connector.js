@@ -87,7 +87,7 @@ class PostgreSQLConnector {
             // insert the run data
             console.info("Inserting run data into PostgreSQL");
             const runQuery = {
-              text: 'INSERT INTO runs (id, name, node_id, head_branch, head_sha, path, display_title, run_number, event, status, conclusion, workflow_id, check_suite_id, check_suite_node_id, url, html_url, created_at, updated_at, actor, run_attempt, referenced_workflows, run_started_at, triggering_actor, jobs_url, logs_url, check_suite_url, artifacts_url, cancel_url, rerun_url, previous_attempt_url, workflow_url, repository, head_repository) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33)',
+              text: 'INSERT INTO runs (run_id, name, node_id, head_branch, head_sha, path, display_title, run_number, event, status, conclusion, workflow_id, check_suite_id, check_suite_node_id, url, html_url, created_at, updated_at, actor, run_attempt, referenced_workflows, run_started_at, triggering_actor, jobs_url, logs_url, check_suite_url, artifacts_url, cancel_url, rerun_url, previous_attempt_url, workflow_url, repository, head_repository) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33)',
               values: [
                 eventData.id,
                 eventData.name,
@@ -124,13 +124,16 @@ class PostgreSQLConnector {
                 eventData.head_repository
               ]
             };
-            await client.query(runQuery);
+            var res = await client.query(runQuery);
+            const runId = res.rows[0].id;
             console.info("Inserting job data into PostgreSQL");
             // insert the job data
+            // check if 
             for (const jobData of eventData.jobs) {
               const jobQuery = {
-                text: 'INSERT INTO jobs (jobName, sequence, labelsRequested, runnerGroupRequested, runnerGroupMatched, runnerOS, runnerImage, runnerImageProvisioner, permissions, actions, startedAt, completedAt, conclusion, logs, run_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
+                text: 'INSERT INTO jobs (job_id, jobName, sequence, labelsRequested, runnerGroupRequested, runnerGroupMatched, runnerOS, runnerImage, runnerImageProvisioner, permissions, actions, startedAt, completedAt, conclusion, logs, run_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
                 values: [
+                  jobData.id,
                   jobData.jobName,
                   jobData.sequence,
                   jobData.labelsRequested,
@@ -145,10 +148,11 @@ class PostgreSQLConnector {
                   jobData.completedAt,
                   jobData.conclusion,
                   jobData.logs,
-                  eventData.id // use the ID of the parent run as the foreign key
+                  runId // use the ID of the parent run as the foreign key
                 ]
               };
-              await client.query(jobQuery);
+              res = await client.query(jobQuery);
+              const jobId = res.rows[0].id;
               console.info("Inserting step data into PostgreSQL");
               // insert the step data
               for (const stepData of jobData.steps) {
@@ -163,7 +167,7 @@ class PostgreSQLConnector {
                     stepData.completedAt,
                     stepData.conclusion,
                     stepData.logs,
-                    jobData.id // use the ID of the parent job as the foreign key
+                    jobId // use the ID of the parent job as the foreign key
                   ]
                 };
                 await client.query(stepQuery);
@@ -212,7 +216,8 @@ class PostgreSQLConnector {
         }
         const runsTableQuery = `
         CREATE TABLE IF NOT EXISTS runs (
-          id BIGINT PRIMARY KEY,
+          id SERIAL PRIMARY KEY,
+          run_id BIGINT,
           name TEXT,
           node_id TEXT,
           head_branch TEXT,
@@ -251,6 +256,7 @@ class PostgreSQLConnector {
       const jobsTableQuery = `
         CREATE TABLE IF NOT EXISTS jobs (
           id SERIAL PRIMARY KEY,
+          job_id BIGINT,
           jobName TEXT,
           sequence INTEGER,
           labelsRequested TEXT,
