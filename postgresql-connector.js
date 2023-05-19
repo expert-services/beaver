@@ -124,6 +124,7 @@ class PostgreSQLConnector {
                 eventData.head_repository
               ]
             };
+          
             var res = await client.query(runQuery);
             const runId = res.rows[0].id;
             console.info("Inserting job data into PostgreSQL");
