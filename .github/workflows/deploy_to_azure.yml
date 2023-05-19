@@ -2,8 +2,8 @@ name: Run Azure Login with OIDC
 on:
   push:
     branches: ['main']
-    paths:
-      - 'terraform/**'
+    # paths:
+    #   - 'terraform/**'
   pull_request:
     branches: ['main']
     paths:
