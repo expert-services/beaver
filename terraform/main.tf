@@ -37,7 +37,7 @@ terraform {
     storage_account_name = "beaverstate"
     container_name       = "tfstate"
     key                  = "prod.terraform.tfstate"
-    # use_oidc             = true
+    use_oidc             = true
     subscription_id      = "24edc3b6-c013-4246-a10d-a237e66a863c"
     tenant_id            = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
   }
