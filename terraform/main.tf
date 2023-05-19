@@ -1,17 +1,4 @@
 locals {
-  azure = {
-    subscription_id = "24edc3b6-c013-4246-a10d-a237e66a863c"
-    tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
-    client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
-  }
-
-  state = {
-    resource_group_name  = "tf-state"
-    storage_account_name = "beaverstate"
-    container_name       = "tfstate"
-    key                  = "prod.terraform.tfstate"
-  }
-
   orgs = toset([
     "oodles-noodles",
     "octodemo"
@@ -32,14 +19,14 @@ locals {
 
 terraform {
   backend "azurerm" {
-    resource_group_name  = local.state.resource_group_name
-    storage_account_name = local.state.storage_account_name
-    container_name       = local.state.container_name
-    key                  = local.state.key
+    resource_group_name  = "tf-state"
+    storage_account_name = "beaverstate"
+    container_name       = "tfstate"
+    key                  = "prod.terraform.tfstate"
     use_oidc             = true
-    subscription_id      = local.azure.subscription_id
-    tenant_id            = local.azure.tenant_id
-    client_id            = local.azure.client_id
+    subscription_id      = "24edc3b6-c013-4246-a10d-a237e66a863c"
+    tenant_id            = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
+    client_id            = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
   }
 }
 
@@ -54,9 +41,9 @@ terraform {
 
 provider "azurerm" {
   use_oidc        = true
-  subscription_id = local.azure.subscription_id
-  tenant_id       = local.azure.tenant_id
-  client_id       = local.azure.client_id
+  subscription_id = "24edc3b6-c013-4246-a10d-a237e66a863c"
+  tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
+  client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
   features {}
 }
 
