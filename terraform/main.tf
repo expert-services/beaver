@@ -450,7 +450,6 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
 
 data "github_actions_secrets" "beaver_secrets" {
   name      = "beaver"
-  owner = "octodemo"
 }
 
 resource "azurerm_linux_web_app" "beaver-app" {
