@@ -448,11 +448,8 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
   ]
 }
 
-variable "webhook_secret" {}
-resource "github_actions_secret" "webhook_secret" {
-  repository       = "octodemo/beaver"
-  secret_name      = "WEBHOOK_SECRET"
-  plaintext_value  = var.webhook_secret
+data "github_actions_secrets" "beaver_secrets" {
+  name      = "beaver"
 }
 
 resource "azurerm_linux_web_app" "beaver-app" {
@@ -465,7 +462,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
     "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
-    "WEBHOOK_SECRET"                    = "test1"
+    "WEBHOOK_SECRET"                    = "${data.github_actions_secrets.beaver_secrets}"
     "APP_ID"                            = "test1"
     "PRIVATE_KEY"                       = "test1"
   }
