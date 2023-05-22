@@ -51,9 +51,7 @@ provider "azurerm" {
   features {}
 }
 
-provider "github" {
-  token = GITHUB_TOKEN
-}
+provider "github" {}
 
 resource "azurerm_resource_group" "beaver" {
   name     = "beaver"
