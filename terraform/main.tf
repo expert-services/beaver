@@ -448,6 +448,7 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
   ]
 }
 
+variable "webhook_secret" {}
 resource "github_actions_secret" "webhook_secret" {
   repository       = "octodemo/beaver"
   secret_name      = "WEBHOOK_SECRET"
