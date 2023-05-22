@@ -35,7 +35,7 @@ jobs:
         - name: Terraform Plan
           working-directory: terraform
           env:
-            TF_VAR_GITHUB_TOKEN: secrets.GITHUB_TOKEN
+            GITHUB_TOKEN: secrets.GITHUB_TOKEN
           run: terraform plan
         - name: Terraform Apply
           working-directory: terraform
