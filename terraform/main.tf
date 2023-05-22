@@ -36,6 +36,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.7.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 5.0"
+    }
   }
 }
 
@@ -45,6 +49,10 @@ provider "azurerm" {
   tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
   client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
   features {}
+}
+
+provider "github" {
+  token = GITHUB_TOKEN
 }
 
 resource "azurerm_resource_group" "beaver" {
@@ -440,6 +448,12 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
     azurerm_stream_analytics_stream_input_eventhub.beaver,
     azurerm_stream_analytics_output_powerbi.powerbi-stream,
   ]
+}
+
+resource "github_actions_secret" "webhook_secret" {
+  repository       = "octodemo/beaver"
+  secret_name      = "WEBHOOK_SECRET"
+  plaintext_value  = var.webhook_secret
 }
 
 resource "azurerm_linux_web_app" "beaver-app" {
