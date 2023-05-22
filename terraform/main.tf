@@ -52,7 +52,7 @@ provider "azurerm" {
 }
 
 provider "github" {
-  owner = "octodemo"
+  # owner = "octodemo"
 }
 
 resource "azurerm_resource_group" "beaver" {
