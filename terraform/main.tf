@@ -51,7 +51,9 @@ provider "azurerm" {
   features {}
 }
 
-provider "github" {}
+provider "github" {
+  owner = "octodemo"
+}
 
 resource "azurerm_resource_group" "beaver" {
   name     = "beaver"
