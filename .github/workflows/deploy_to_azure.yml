@@ -11,9 +11,7 @@ on:
 
 permissions:
       id-token: write
-      contents: read
-      actions: read
-      
+      contents: write      
 jobs: 
   deploy:
       runs-on: ubuntu-latest
