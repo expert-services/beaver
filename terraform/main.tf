@@ -463,7 +463,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
     "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
-    "WEBHOOK_SECRET"                    = "${var.my_encrypted_secret_value}"
+    "WEBHOOK_SECRET"                    = "${data.github_actions_secrets.beaver_secrets}"
     "APP_ID"                            = "test1"
     "PRIVATE_KEY"                       = "test1"
   }
