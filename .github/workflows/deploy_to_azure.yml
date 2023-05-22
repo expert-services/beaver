@@ -1,4 +1,4 @@
-name: Run Azure Login with OIDC
+name: Deploy to Azure
 on:
   push:
     branches: ['main']
