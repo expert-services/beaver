@@ -1,4 +1,4 @@
-locals {
+locals { 
   orgs = toset([
     "oodles-noodles",
     "octodemo"
