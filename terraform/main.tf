@@ -1,27 +1,8 @@
-locals { 
-  orgs = toset([
-    "oodles-noodles",
-    "octodemo"
-  ])
-
-  powerbi_config = {
-    dataset    = "actions-workflow-data"
-    table      = "data"
-    group_id   = "ce7f2c58-fbc7-4e02-a3a3-0da8231f67fa"
-    group_name = "github-inc"
-  }
-
-  docker_config = {
-    image = "yjactionsmetrics.azurecr.io/beaver"
-    tag   = "latest"
-  }
-}
-
 terraform {
   backend "azurerm" {
     resource_group_name  = "tf-state"
     storage_account_name = "beaverstate"
-    container_name       = "tfstate"
+    container_name       = "octodemo-tfstate"
     key                  = "prod.terraform.tfstate"
     use_oidc             = true
     subscription_id      = "24edc3b6-c013-4246-a10d-a237e66a863c"
@@ -45,6 +26,22 @@ provider "azurerm" {
   tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
   client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
   features {}
+}
+
+locals { 
+  org = "octodemo"
+
+  powerbi_config = {
+    dataset    = "actions-workflow-data"
+    table      = "data"
+    group_id   = "ce7f2c58-fbc7-4e02-a3a3-0da8231f67fa"
+    group_name = "github-inc"
+  }
+
+  docker_config = {
+    image = "yjactionsmetrics.azurecr.io/beaver"
+    tag   = "latest"
+  }
 }
 
 resource "azurerm_resource_group" "beaver" {
@@ -442,13 +439,13 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
   ]
 }
 
+# The following variables are expected to be present as environment variables
 variable "webhook_secret" {}
 variable "private_key" {}
 variable "app_id" {}
 
 resource "azurerm_linux_web_app" "beaver-app" {
-  for_each            = local.orgs # The way this works will need attention if / when the actual GitHub Apps are created as part of this template
-  name                = "beaver-${each.key}"
+  name                = "beaver-${local.org}"
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
