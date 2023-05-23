@@ -1,25 +1,15 @@
-# Probot application for forwarding logs
-This is a Probot application that listens for a `workflow_run` event in a GitHub repository, downloads the logs for the workflow run using the GitHub REST API, and forwards the logs to an Azure Event Hub. This Probot application be deployed as an Azure Web App to automatically monitor and forward logs from multiple GitHub orgs a variety of data stores to be viewed with various data visualization programs. The Azure Event Hub connection string (and other credentials used for authentication) are retrieved from Configuration Settings (environment variables) of the Azure Web App, so they can be easily configured for different environments. 
-
-![image](https://user-images.githubusercontent.com/107562400/231777818-2a43fbb8-d85d-45a4-8313-8441785e4301.png)
-
-### Requirements
-To use this Probot application, you’ll need the following:
-* ToDo
-
-### Installation
 # Probot application for forwarding GitHub Actions workflow logs
-This Probot application can be deployed as an Azure Web App (via docker container) to automatically forward workflow log data from multiple GitHub orgs to a variety of data stores. In general the application listens for a `workflow_run` event in a GitHub repository and then
+This Probot application can be deployed as an Azure Web App (via docker container) to automatically forward workflow log data from a GitHub org to a variety of data stores. In general the application listens for a `workflow_run` event in a GitHub repository and then
   * Downloads the logs for the workflow run using the GitHub REST API 
   * Forwards the logs to an Azure Event hub and optionally
     * Azure Postgres 
   * Azure Stream Analytics is used to send Event Hub messages to a Power BI streaming dataset and optionally
     * An Azure Log Analytics Workspace
 
- Connection strings (and other credentials used for authentication) are stored and retrieved from Configuration Settings (e.g., environment variables) of a given Azure Web App, enabling the application to be easily configured for different environments. 
+Connection strings (and other credentials used for authentication) are stored and retrieved from Configuration Settings (e.g., environment variables) of a given Azure Web App, enabling the application to be easily configured for different environments. 
 
 ### Functional Architecture
-![image](https://user-images.githubusercontent.com/107562400/231777818-2a43fbb8-d85d-45a4-8313-8441785e4301.png)
+![image](https://github.com/octodemo/beaver/assets/107562400/60b6c501-52d6-4737-b2ca-405805b9e881)
 
 ### Sample Dashboard
 ![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
@@ -64,7 +54,7 @@ Do all of the above using GitHub Actions 🚀. The [.github/workflows/deploy_to_
 
 
 
-### Local Installation
+### Local Development
 To install this Probot application, follow these steps:
 1. Clone this repository to your development environment.
 2. Install dependencies by running `npm install` in the root directory of the repository.
@@ -87,15 +77,9 @@ POSTGRESQL_HOST=
 POSTGRESQL_PORT=
 POSTGRESQL_DATABASE=
 ```
-Replace the values in angle brackets with your own values. You can obtain your GitHub App ID and webhook secret by  [creating a new GitHub App](https://docs.github.com/en/developers/apps/creating-a-github-app) , and your Splunk HTTP Event Collector token by  [creating a new HTTP Event Collector token](https://docs.splunk.com/Documentation/Splunk/8.2.2/Data/UsetheHTTPEventCollector). Probot takes care of most of the configuration for you, so you can leave the other fields blank when creating the GitHub App automatically with Probot on localhost:3000.
-4. (optinal) Deploy the application to Azure Functions by running npm run deploy (make sure you have the  [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)  installed).
+Replace the values in angle brackets with your own values. You can obtain your GitHub App ID and webhook secret by  [creating a new GitHub App](https://docs.github.com/en/developers/apps/creating-a-github-app). Probot takes care of most of the configuration for you, so you can leave the other fields blank when creating the GitHub App automatically with Probot on localhost:3000.
 
-### Usage
-Once the Probot application is installed and deployed, it will automatically listen for workflow_run events in your GitHub repository. Whenever a new workflow run is triggered, the application will download the logs for the run using the GitHub REST API, format the logs for forwarding to Splunk, and forward the logs to your Splunk HTTP Event Collector using an HTTP POST request. You can view the forwarded logs in your Splunk environment by searching for events with the sourcetype github_workflow_logs.
-
-On a terminal run the following command: `npm start`
-
-Replace the values in angle brackets with your own values. You can obtain your GitHub App ID and webhook secret by  [creating a new GitHub App](https://docs.github.com/en/developers/apps/creating-a-github-app). 
+4. On a terminal run the following command: `npm start`
 
 ## Acknowledgements
 The code for this application was originally drafted by @enyil and @decyjpher, and I have merely stood on their gigantic shoulders by centralizing efforts in this repository.
