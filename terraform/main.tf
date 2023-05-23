@@ -36,10 +36,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.7.0"
     }
-    github = {
-      source  = "integrations/github"
-      version = "~> 5.0"
-    }
   }
 }
 
@@ -49,10 +45,6 @@ provider "azurerm" {
   tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
   client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
   features {}
-}
-
-provider "github" {
-  owner = "octodemo"
 }
 
 resource "azurerm_resource_group" "beaver" {
@@ -450,9 +442,9 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
   ]
 }
 
-data "github_actions_secrets" "beaver_secrets" {
-  name      = "beaver"
-}
+variable "webhook_secret" {}
+variable "private_key" {}
+variable "app_id" {}
 
 resource "azurerm_linux_web_app" "beaver-app" {
   for_each            = local.orgs # The way this works will need attention if / when the actual GitHub Apps are created as part of this template
@@ -464,9 +456,9 @@ resource "azurerm_linux_web_app" "beaver-app" {
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
     "AZURE_EVENT_HUB_NAME"              = azurerm_eventhub_namespace.beaver.name
-    "WEBHOOK_SECRET"                    = "${data.github_actions_secrets.beaver_secrets}"
-    "APP_ID"                            = "test1"
-    "PRIVATE_KEY"                       = "test1"
+    "WEBHOOK_SECRET"                    = var.webhook_secret
+    "APP_ID"                            = var.app_id
+    "PRIVATE_KEY"                       = var.private_key
   }
 
   site_config {

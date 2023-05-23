@@ -34,7 +34,9 @@ jobs:
         - name: Terraform Plan
           working-directory: terraform
           env:
-            GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"
+            TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+            TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
+            TF_VAR_app_id: ${{ secrets.APP_ID }}
           run: terraform plan
         - name: Terraform Apply
           working-directory: terraform
