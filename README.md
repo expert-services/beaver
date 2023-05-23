@@ -1,10 +1,8 @@
 # Probot application for forwarding GitHub Actions workflow logs
 This Probot application can be deployed as an Azure Web App (via docker container) to automatically forward workflow log data from a GitHub org to a variety of data stores. In general the application listens for a `workflow_run` event in a GitHub repository and then
   * Downloads the logs for the workflow run using the GitHub REST API 
-  * Forwards the logs to an Azure Event hub and optionally
-    * Azure Postgres 
-  * Azure Stream Analytics is used to send Event Hub messages to a Power BI streaming dataset and optionally
-    * An Azure Log Analytics Workspace
+  * Forwards the logs to an Azure Event hub and optionally a PostgreSQL database 
+  * Azure Stream Analytics is used to send Event Hub messages to a Power BI streaming dataset
 
 Connection strings (and other credentials used for authentication) are stored and retrieved from Configuration Settings (e.g., environment variables) of a given Azure Web App, enabling the application to be easily configured for different environments. 
 
