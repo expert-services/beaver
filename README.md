@@ -46,8 +46,8 @@ It is now easier than ever to gather insights from data given the improvements i
 4. Create a repository to store needed configuration items and deploy required infrastructure
 5. Create values the following as **Repository secrets** in the repository created in Step 3
      - **APP_ID**: The GitHub App ID
-     - WEBHOOK_SECRET: The Webhook secret specified when creating the GitHub App
-     - PRIVATE_KEY: The Base64 string associated with the GitHub Apps Private key `.pem` file
+     - **WEBHOOK_SECRET**: The Webhook secret specified when creating the GitHub App
+     - **PRIVATE_KEY**: The Base64 string associated with the GitHub Apps Private key `.pem` file
 
 ## Deploy Azure Infrastructure 
 Infrastructure is required to process webhook events, as well as gather and transform GitHub Actions log data. A variety of Azure services are used to provide the needed runtimes, configurations, and storage that allows for easy reporting layers to be integrated.
