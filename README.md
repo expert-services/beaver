@@ -45,6 +45,9 @@ It is now easier than ever to gather insights from data given the improvements i
 3. Install the GitHub App on all the repositories in the Organization
 4. Create a repository to store needed configuration items and deploy required infrastructure
 5. Create values the following as **Repository secrets** in the repository created in Step 3
+     - **CLIENT_ID**: The client ID of the Azure App Registration used to deploy infrastructure
+     - **TENANT_ID**: The tenant ID of the Azure App Registration used to deploy infrastructure
+     - **SUBSCRIPTION_ID**: The subscription ID of the Azure subscription that infrastructure is to be deployed to
      - **APP_ID**: The GitHub App ID
      - **WEBHOOK_SECRET**: The Webhook secret specified when creating the GitHub App
      - **PRIVATE_KEY**: The Base64 string associated with the GitHub Apps Private key `.pem` file
