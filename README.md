@@ -8,8 +8,8 @@ Connection strings (and other credentials used for authentication) are stored an
 
 ### Functional Architecture
 Different environments support the process of shipping and vizualizing workflow log data
-- GitHub hosts the Beaver application (this repository), the REST API, as well as the Organization that the GitHub App is installed on. 
-- The infrasturcure required to recieve the GitHub App webhooks and obtain workflow logs exists in Azure and is managed with Terraform. 
+- GitHub hosts the Beaver application (this repository), the REST API, as well as the Organization that the GitHub App is installed on
+- The infrasturcure required to recieve the GitHub App webhooks and obtain workflow logs exists in Azure and is managed with Terraform
 - Data storage requirements and vizualization tools can exist leveraging the Office 365 ecosystem or Open Source components
 
 ![image](https://github.com/octodemo/beaver/assets/107562400/60b6c501-52d6-4737-b2ca-405805b9e881)
@@ -18,13 +18,13 @@ Different environments support the process of shipping and vizualizing workflow 
 ![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
 
 ## Background
-Data is (and always has been) [the new _soil_](https://www.ted.com/talks/david_mccandless_the_beauty_of_data_visualization). It is now easier than ever to gather insights from data given the improvements in modern data visualization tools. However, it has historically been complex to gather, manipulate, and store large amounts of data. Especially streaming data sources, such as webhooks and CI/CD job logs. This, along with there not yet being rich features supporting the displaying of metrics and insights for Actions usage on GitHub sets the stage for a problem that is
+It is now easier than ever to gather insights from data given the improvements in modern data visualization tools. However, it has historically been complex to gather, manipulate, and store large amounts of data. Especially streaming data sources, such as webhooks and CI/CD job logs. This, along with there not yet being rich features supporting the displaying of metrics and insights for Actions usage on GitHub sets the stage for a problem that is
 * Large in scale
 * Neglected by others
 * A feasible area to make progress in
 
 ## Requirements
-1. A GitHub App must be installed on the Organization 
+1. A GitHub App must be installed on the Organization that you wish to collect log data for
      - The **GitHub App name** must be supplied with a name (e.g., my-org-beaver)
      - The **Homepage URL** must be provided (e.g., https://github.com/octodemo/beaver )
      - The initial **Webhook URL** must be a temporary one (e.g., https://example.com)
@@ -42,8 +42,9 @@ Data is (and always has been) [the new _soil_](https://www.ted.com/talks/david_m
 
     foo@bar:~$
     ```
-3. Create a repository to store needed configuration items and deploy required infrastructure
-4. Create values the following as **Repository secrets** in the repository created in Step 3
+3. Install the GitHub App on all the repositories in the Organization
+4. Create a repository to store needed configuration items and deploy required infrastructure
+5. Create values the following as **Repository secrets** in the repository created in Step 3
      - **APP_ID**: The GitHub App ID
      - WEBHOOK_SECRET: The Webhook secret specified when creating the GitHub App
      - PRIVATE_KEY: The Base64 string associated with the GitHub Apps Private key `.pem` file
@@ -51,61 +52,47 @@ Data is (and always has been) [the new _soil_](https://www.ted.com/talks/david_m
 ## Deploy Azure Infrastructure 
 Infrastructure is required to process webhook events, as well as gather and transform GitHub Actions log data. A variety of Azure services are used to provide the needed runtimes, configurations, and storage that allows for easy reporting layers to be integrated.
 
-### OIDC With Workflows
-Note that in this case it is assumed that a Federated credential for GitHub Actions has been [correctly configured](https://github.com/marketplace/actions/azure-login#configure-a-federated-credential-to-use-oidc-based-authentication).
+> **Note**
+> In this case it is assumed that a Federated credential for GitHub Actions has been [correctly configured](https://github.com/marketplace/actions/azure-login#configure-a-federated-credential-to-use-oidc-based-authentication).
 
 
 ### Terraform
 Use GitHub Actions 🚀 to execute Terraform CLI commands 
 
 1. Copy [terraform/main.tf](terraform/main.tf) into the repository created during Step 3 of the Requirements section
-2. Adjust the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser  
-3. Create a separate Azure Storage Account used for maintaing Terraform state
+2. Create a separate Azure Storage Account used for maintaing Terraform state
      - Create required container
-
-4. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 3 of the Requirements section
+3. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 3 of the Requirements section
+4. Adjust the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser  
 
 > **Note**
 > If using the [terraform/main.tf](terraform/main.tf) template, resource will be deployed in the East US region
 
-
-
-#### App Service Plan
-
-#### App Service
-
-#### Event Hub Namespace
-
-#### Stream Analytics Job
-
-
-
 ### Local Development
 To install this Probot application, follow these steps:
-1. Clone this repository to your development environment.
-2. Install dependencies by running `npm install` in the root directory of the repository.
-3. Create a .env file in the root directory of the repository with the following content:
-```
-APP_ID=<your GitHub App ID> 
-PRIVATE_KEY=<your Github App private key>
-GITHUB_CLIENT_ID=<your Github App client id> 
-GITHUB_CLIENT_SECRET=<your Github app client secret>
-WEBHOOK_SECRET=<your GitHub App webhook secret>
+1. Clone this repository to your development environment
+2. Install dependencies by running `npm install` in the root directory of the repository
+3. Create a .env file in the root directory of the repository with the following content, and replace the values in angle brackets with your own values:
+    ```
+    APP_ID=<your GitHub App ID> 
+    PRIVATE_KEY=<your Github App private key>
+    GITHUB_CLIENT_ID=<your Github App client id> 
+    GITHUB_CLIENT_SECRET=<your Github app client secret>
+    WEBHOOK_SECRET=<your GitHub App webhook secret>
 
-# Optional environment variables for the Azure Event Hub
-AZURE_EVENT_HUB_CONNECTION_STRING=
-AZURE_EVENT_HUB_NAME=
+    # Optional environment variables for the Azure Event Hub
+    AZURE_EVENT_HUB_CONNECTION_STRING=
+    AZURE_EVENT_HUB_NAME=
 
-# Optional environment variables for the postgresql database
-POSTGRESQL_USER=
-POSTGRESQL_PASSWORD=
-POSTGRESQL_HOST=
-POSTGRESQL_PORT=
-POSTGRESQL_DATABASE=
-```
-Replace the values in angle brackets with your own values. You can obtain your GitHub App ID and webhook secret by  [creating a new GitHub App](https://docs.github.com/en/developers/apps/creating-a-github-app). Probot takes care of most of the configuration for you, so you can leave the other fields blank when creating the GitHub App automatically with Probot on localhost:3000.
-
+    # Optional environment variables for the postgresql database
+    POSTGRESQL_USER=
+    POSTGRESQL_PASSWORD=
+    POSTGRESQL_HOST=
+    POSTGRESQL_PORT=
+    POSTGRESQL_DATABASE=
+    ```
+ 
 4. On a terminal run the following command: `npm start`
 
 ## Acknowledgements
-The code for this application was originally drafted by @enyil and @decyjpher, and I have merely stood on their gigantic shoulders by centralizing efforts in this repository.
+The code for this application was originally drafted by @enyil and @decyjpher
