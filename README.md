@@ -63,10 +63,13 @@ Infrastructure is required to process webhook events, as well as gather and tran
 Use GitHub Actions 🚀 to execute Terraform CLI commands 
 
 1. Copy [terraform/main.tf](terraform/main.tf) into the repository created during Step 3 of the Requirements section
-2. Create a separate Azure Storage Account used for maintaing Terraform state
-     - Create required container
+2. Create a separate Azure Storage Account (StorageV2) to maintain the Terraform state
 3. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 3 of the Requirements section
-4. Adjust the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser  
+4. Edit the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser 
+5. Create a Container for the Terraform state (e.g., octodemo-tfstate)
+6. Edit the `terraform backend` configuration to reference the previously created storage account and container
+7. Edit the `azurerm` provider properties to specify the correct `subscription_id`, `tenant_id`, and `client_id`
+8. Commit changes to observe the `deploy_to_azure.yml` workflow execute
 
 > **Note**
 > If using the [terraform/main.tf](terraform/main.tf) template, resource will be deployed in the East US region
