@@ -34,8 +34,8 @@ locals {
   powerbi_config = {
     dataset    = "actions-workflow-data"
     table      = "data"
-    group_id   = "ce7f2c58-fbc7-4e02-a3a3-0da8231f67fa"
-    group_name = "github-inc"
+    group_id   = "9c393c4a-dd2e-4f22-a007-0e41cb7fff85"
+    group_name = "github-services"
   }
 
   docker_config = {
