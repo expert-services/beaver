@@ -1,4 +1,4 @@
-name: Trivy
+name: tsfsec
 on:
   workflow_dispatch:
   push:
@@ -11,25 +11,26 @@ on:
       - 'terraform/**'
       
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-20.04
+  tfsec:
+    name: tfsec sarif report
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Trivy vulnerability scanner in IaC mode
-        uses: aquasecurity/trivy-action@master
+      - name: Clone repo
+        uses: actions/checkout@v2
         with:
-          scan-type: 'config'
-          hide-progress: false
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: LOW,MEDIUM,HIGH,CRITICAL
+          persist-credentials: false
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          working_directory: ./terraform
+          sarif_file: tfsec.sarif          
+
+      - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: tfsec.sarif         
