@@ -20,4 +20,9 @@ jobs:
       
       - name: Run Checkov
         run: |
-           docker run -t -v ${{ github.workspace }}/terraform:/tf --workdir /tf bridgecrew/checkov --directory /tf 
+           docker run -t -v ${{ github.workspace }}/terraform:/tf --workdir /tf bridgecrew/checkov --directory /tf -o sarif
+#       - name: Upload SARIF file
+#         uses: github/codeql-action/upload-sarif@v2
+#         with:
+#           # Path to SARIF file relative to the root of the repository
+#           sarif_file: results.sarif    
