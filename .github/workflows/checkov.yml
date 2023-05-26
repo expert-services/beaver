@@ -14,13 +14,10 @@ jobs:
   checkov:
       runs-on: ubuntu-latest
       steps:
-      
-      - name : Check out Git Repository
+      - name : Checkout
         uses: actions/checkout@v3
-      
       - name: Run Checkov
-        run: |
-           docker run -t -v ${{ github.workspace }}/terraform:/tf --workdir /tf bridgecrew/checkov --directory /tf -o sarif
+        run: docker run -t -v ${{ github.workspace }}/terraform:/tf --workdir /tf bridgecrew/checkov --directory /tf -o sarif
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
