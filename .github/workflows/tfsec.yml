@@ -1,4 +1,4 @@
-name: tsfsec
+name: tfsec
 on:
   workflow_dispatch:
   push:
