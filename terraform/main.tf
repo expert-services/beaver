@@ -457,9 +457,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   ftps_state                        = "Disabled"
   health_check_path                 = "/"
   health_check_eviction_time_in_min = 2
-  auth_settings {
-    enabled = true
-  }
+
   logs {
     http_logs {
       retention_in_days = 4
