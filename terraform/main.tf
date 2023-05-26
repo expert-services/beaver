@@ -450,7 +450,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
   https_only          = true
-  ftps_state = "FtpsOnly"
+  ftps_state          = "Disabled"
   logs {
     http_logs {
       retention_in_days = 4
