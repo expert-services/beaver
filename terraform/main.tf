@@ -449,6 +449,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
+  https_only          = true
 
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
@@ -462,6 +463,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
     application_stack {
       docker_image     = local.docker_config.image
       docker_image_tag = local.docker_config.tag
+      http2_enabled = true
     }
   }
 }
