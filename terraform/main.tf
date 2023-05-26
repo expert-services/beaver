@@ -463,6 +463,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
       retention_in_days = 4
       retention_in_mb   = 10
     }
+    failed_request_tracing = true
   }
 
   app_settings = {
