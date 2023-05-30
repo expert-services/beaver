@@ -455,7 +455,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
   service_plan_id                   = azurerm_service_plan.beaver-asp.id
   https_only                        = true
   ftps_state                        = "Disabled"
-  health_check_path                 = "/"
+  health_check_path                 = "/probot"
   health_check_eviction_time_in_min = 2
 
   logs {
