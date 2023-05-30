@@ -450,13 +450,10 @@ resource "azurerm_linux_web_app" "beaver-app" {
     type = "SystemAssigned"
   }
 
-  resource_group_name               = azurerm_resource_group.beaver.name
-  location                          = azurerm_service_plan.beaver-asp.location
-  service_plan_id                   = azurerm_service_plan.beaver-asp.id
-  https_only                        = true
-  ftps_state                        = "Disabled"
-  health_check_path                 = "/probot"
-  health_check_eviction_time_in_min = 2
+  resource_group_name = azurerm_resource_group.beaver.name
+  location            = azurerm_service_plan.beaver-asp.location
+  service_plan_id     = azurerm_service_plan.beaver-asp.id
+  https_only          = true
 
   logs {
     http_logs {
@@ -479,6 +476,9 @@ resource "azurerm_linux_web_app" "beaver-app" {
       docker_image     = local.docker_config.image
       docker_image_tag = local.docker_config.tag
     }
-    http2_enabled = true
+    http2_enabled                     = true
+    ftps_state                        = "Disabled"
+    health_check_path                 = "/probot"
+    health_check_eviction_time_in_min = 2
   }
 }
