@@ -14,11 +14,12 @@ Different environments support the process of shipping and vizualizing workflow 
 
 ![image](https://github.com/octodemo/beaver/assets/107562400/60b6c501-52d6-4737-b2ca-405805b9e881)
 
+> **Note**
+> In order for the managed identity used by the Stream Analytics job to be able to successfully write data to the Power BI Streaming dataset (as shown above), the group ID that hosts the dataset must belong to the same Azure AD Tenant as the managed identity
+
 ### Sample Dashboard
 ![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
 
-> **Note**
-> In order for the managed identity used by the Stream Analytics job to be able to successfully write data to the Power BI Streaming dataset (as shown above), the group ID that hosts the dataset must belong to the same Azure AD Tenant as the managed identity
 
 ## Background
 It is now easier than ever to gather insights from data given the improvements in modern data visualization tools. However, it has historically been complex to gather, manipulate, and store large amounts of data. Especially streaming data sources, such as webhooks and CI/CD job logs. This, along with there not yet being rich features supporting the displaying of metrics and insights for Actions usage on GitHub sets the stage for a problem that is

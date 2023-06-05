@@ -35,3 +35,13 @@ jobs:
             TF_VAR_app_id: ${{ secrets.APP_ID }}
           working-directory: terraform
           run: terraform init && terraform plan && terraform apply -auto-approve
+        - name: Update PowerBI permissions
+          shell: pwsh
+          env:
+            client_id: ${{ secrets.CLIENT_ID }}
+            client_secret: ${{ secrets.CLIENT_SECRET }}
+            tenant_id: ${{ secrets.TENANT_ID }}
+          run: |
+            $password = ConvertTo-SecureString $env.client_secret -AsPlainText -Force
+            $credential = New-Object System.Management.Automation.PSCredential ($env.client_id, $password)
+            Connect-PowerBIServiceAccount -Tenant $env.tenant_id -ServicePrincipal -Credential $credential
