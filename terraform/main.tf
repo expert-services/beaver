@@ -1,8 +1,8 @@
-terraform {
+terraform { 
   backend "azurerm" {
     resource_group_name  = "tf-state"
     storage_account_name = "beaverstate"
-    container_name       = "octodemo-tfstate"
+    container_name       = "oodles-noodles-tfstate"
     key                  = "prod.terraform.tfstate"
     use_oidc             = true
     subscription_id      = "24edc3b6-c013-4246-a10d-a237e66a863c"
@@ -28,14 +28,15 @@ provider "azurerm" {
   features {}
 }
 
+# The following variable are expected to be present as environment variables
+variable "group_id" {}
 locals {
-  org = "octodemo"
-
+  org = "oodles-noodles"
   powerbi_config = {
     dataset    = "actions-workflow-data"
     table      = "data"
-    group_id   = "9c393c4a-dd2e-4f22-a007-0e41cb7fff85"
-    group_name = "github-services"
+    group_id   = var.group_id
+    group_name = "beaver-dev"
   }
 
   docker_config = {
@@ -58,7 +59,7 @@ resource "azurerm_service_plan" "beaver-asp" {
 }
 
 resource "azurerm_eventhub_namespace" "beaver" {
-  name                = "beaver-eventhub-ns"
+  name                = "beaver-${local.org}-eventhub-ns"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
   sku                 = "Standard"
@@ -71,6 +72,13 @@ resource "azurerm_eventhub" "beaver" {
   resource_group_name = azurerm_resource_group.beaver.name
   partition_count     = 2
   message_retention   = 1
+}
+
+resource "azurerm_eventhub_consumer_group" "consumer-group" {
+  name                = "beaver-consumergroup"
+  namespace_name      = azurerm_eventhub_namespace.beaver.name
+  eventhub_name       = azurerm_eventhub.beaver.name
+  resource_group_name = azurerm_resource_group.beaver.name
 }
 
 # Create needed UUIDs for Azure Stream Analytics query
@@ -404,13 +412,14 @@ resource "azurerm_stream_analytics_job" "beaver" {
 }
 
 resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
-  name                      = "${random_uuid.input.result}-input"
-  stream_analytics_job_name = azurerm_stream_analytics_job.beaver.name
-  resource_group_name       = azurerm_resource_group.beaver.name
-  servicebus_namespace      = azurerm_eventhub_namespace.beaver.name
-  eventhub_name             = azurerm_eventhub.beaver.name
-  shared_access_policy_key  = azurerm_eventhub_namespace.beaver.default_primary_key
-  shared_access_policy_name = "RootManageSharedAccessKey"
+  name                         = "${random_uuid.input.result}-input"
+  stream_analytics_job_name    = azurerm_stream_analytics_job.beaver.name
+  eventhub_consumer_group_name = azurerm_eventhub_consumer_group.consumer-group.name
+  resource_group_name          = azurerm_resource_group.beaver.name
+  servicebus_namespace         = azurerm_eventhub_namespace.beaver.name
+  eventhub_name                = azurerm_eventhub.beaver.name
+  shared_access_policy_key     = azurerm_eventhub_namespace.beaver.default_primary_key
+  shared_access_policy_name    = "RootManageSharedAccessKey"
 
   serialization {
     type     = "Json"
@@ -445,23 +454,10 @@ variable "private_key" {}
 variable "app_id" {}
 
 resource "azurerm_linux_web_app" "beaver-app" {
-  name = "beaver-${local.org}"
-  identity {
-    type = "SystemAssigned"
-  }
-
+  name                = "beaver-${local.org}"
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
-  https_only          = true
-
-  logs {
-    http_logs {
-      retention_in_days = 4
-      retention_in_mb   = 10
-    }
-    failed_request_tracing = true
-  }
 
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
@@ -476,9 +472,9 @@ resource "azurerm_linux_web_app" "beaver-app" {
       docker_image     = local.docker_config.image
       docker_image_tag = local.docker_config.tag
     }
-    http2_enabled                     = true
-    ftps_state                        = "Disabled"
-    health_check_path                 = "/probot"
-    health_check_eviction_time_in_min = 2
   }
+}
+
+output "sa_job_managed_identity" {
+  value = azurerm_stream_analytics_job.beaver.identity[0].principal_id
 }
