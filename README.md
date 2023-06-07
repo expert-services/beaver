@@ -17,10 +17,6 @@ Different environments support the process of shipping and vizualizing workflow 
 > **Note**
 > In order for the managed identity used by the Stream Analytics job to be able to successfully write data to the Power BI Streaming dataset (as shown above), the group ID that hosts the dataset must belong to the same Azure AD Tenant as the managed identity
 
-### Sample Dashboard
-![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
-
-
 ## Background
 It is now easier than ever to gather insights from data given the improvements in modern data visualization tools. However, it has historically been complex to gather, manipulate, and store large amounts of data. Especially streaming data sources, such as webhooks and CI/CD job logs. This, along with there not yet being rich features supporting the displaying of metrics and insights for Actions usage on GitHub sets the stage for a problem that is
 * Large in scale
@@ -40,7 +36,8 @@ It is now easier than ever to gather insights from data given the improvements i
 
     ```console
     foo@bar:~$ base64 -i oodles-noodles-beaver.YYYY-MM-DD.private-key.pem
-    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBa2xwaVlUdEZQbG5kdWdySDNOcGlvaGNZN1ZwNTlYMkhGTjJXMjZKdHkzYkRJWTJCClpJc20rRGN5dEZNb0kxbUg3UGUvUk1CN0xuOXZLS2N5Sk1kNVRuakxwUTBZWGdCOFRlQzdTa2tHNFB3alZKWlEKK1RlN3hiQUtSTmlocVMyZVMzYzBoQWpwYVJYaGVDb2hSRElvNkZ2NVYrRHR0dWVVUEVYWGI5S3p6d0FETF
+    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBa2xwaVlUdEZQbG5kdWdySDNOcGlvaGNZN1ZwNTlYMkhGTjJXM
+    jZKdHkzYkRJWTJCClpJc20rRGN5dEZNb0kxbUg3UGUvUk1CN0xuOXZLS2N5Sk1kNVRuakxwUTBZWGdCOFRlQzdTa2tHNFB3alZKWlEKK1RlN3hiQU
     ...
     ...
 
@@ -66,17 +63,29 @@ Infrastructure is required to process webhook events, as well as gather and tran
 ### Terraform
 Use GitHub Actions 🚀 to execute Terraform CLI commands 
 
-1. Copy [terraform/main.tf](terraform/main.tf) into the repository created during Step 3 of the Requirements section
+1. Copy [terraform/main.tf](terraform/main.tf) into the repository created during Step 4 of the Requirements section
 2. Create a separate Azure Storage Account (StorageV2) to maintain the Terraform state
-3. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 3 of the Requirements section
+3. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 4 of the Requirements section
 4. Edit the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser 
 5. Create a Container for the Terraform state (e.g., octodemo-tfstate)
 6. Edit the `terraform backend` configuration to reference the previously created storage account and container
 7. Edit the `azurerm` provider properties to specify the correct `subscription_id`, `tenant_id`, and `client_id`
 8. Commit changes to observe the `deploy_to_azure.yml` workflow execute
-
 > **Note**
 > If using the [terraform/main.tf](terraform/main.tf) template, resource will be deployed in the East US region
+
+### Sample Power BI Dashboard
+A [PowerBI template file](actions-insights.pbit) (`.pbit`) exists as a starting point to quickly begin dashboarding data set to a PowerBI streaming data set. 
+
+![image](https://user-images.githubusercontent.com/107562400/232624615-63adaa32-cf95-4495-b6b5-070937dd211f.png)
+
+Download and open the `.pbit` file and open the Data source settings with the Transform data section of the Home ribbon.
+
+![image](https://github.com/octodemo/beaver/assets/107562400/be4d529b-4034-4153-8ee3-349e457f0963)
+
+Click Change Source to adjust the source to the Power BI streaming data set created by Beaver
+
+![image](https://github.com/octodemo/beaver/assets/107562400/e5c953d7-bc0c-47e6-8d82-24093337088d)
 
 ### Local Development
 To install this Probot application, follow these steps:
