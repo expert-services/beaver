@@ -12,36 +12,71 @@ on:
 permissions:
       id-token: write
       contents: read
+env:
+  client_id: ${{ secrets.CLIENT_ID }}
+  client_secret: ${{ secrets.CLIENT_SECRET }}
+  tenant_id: ${{ secrets.TENANT_ID }}
 jobs: 
   deploy:
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
           uses: actions/checkout@v3
+        
         - name: OIDC Login to Azure 
           uses: azure/login@v1
           with:
             client-id: ${{ secrets.CLIENT_ID }}
             tenant-id: ${{ secrets.TENANT_ID }}
             subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+        
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v2
           with:
             terraform_version: 1.4.6
-        - name: Terraform Deploy
+        
+        - name: Setup PowerShell module cache
+          id: cacher
+          uses: actions/cache@v3
+          with:
+            path: "~/.local/share/powershell/Modules"
+            key: ${{ runner.os }}-MicrosoftPowerBIMgmt
+        
+        - name: Install required PowerShell modules
+          if: steps.cacher.outputs.cache-hit != 'true'
+          shell: pwsh
+          run: |
+            Set-PSRepository PSGallery -InstallationPolicy Trusted
+            Install-Module MicrosoftPowerBIMgmt -ErrorAction Stop
+        
+        - name: Deploy
           env:
             TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
             TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
             TF_VAR_app_id: ${{ secrets.APP_ID }}
           working-directory: terraform
-          run: terraform init && terraform plan && terraform apply -auto-approve
+          shell: pwsh
+          run: |
+            $password = ConvertTo-SecureString $env:client_secret -AsPlainText -Force
+            $credential = New-Object System.Management.Automation.PSCredential ($env:client_id, $password)
+            Connect-PowerBIServiceAccount -Tenant $env:tenant_id -ServicePrincipal -Credential $credential | Out-Null
+            $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
+            if ($null -eq $workspace) {$workspace = New-PowerBIWorkspace -Name "beaver-logs"}
+            $env:TF_VAR_group_id = $($workspace.id.guid)
+            terraform init && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
+        
+        - name: Extract Service Principal ID
+          id: extract-service-principal
+          working-directory: terraform
+          run: terraform output -json
+        
         - name: Update PowerBI permissions
           shell: pwsh
-          env:
-            client_id: ${{ secrets.CLIENT_ID }}
-            client_secret: ${{ secrets.CLIENT_SECRET }}
-            tenant_id: ${{ secrets.TENANT_ID }}
+          working-directory: terraform
           run: |
-            $password = ConvertTo-SecureString $env.client_secret -AsPlainText -Force
-            $credential = New-Object System.Management.Automation.PSCredential ($env.client_id, $password)
-            Connect-PowerBIServiceAccount -Tenant $env.tenant_id -ServicePrincipal -Credential $credential
+            $password = ConvertTo-SecureString $env:client_secret -AsPlainText -Force
+            $credential = New-Object System.Management.Automation.PSCredential ($env:client_id, $password)
+            Connect-PowerBIServiceAccount -Tenant $env:tenant_id -ServicePrincipal -Credential $credential | Out-Null
+            $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
+            $principalId = ('${{ steps.extract-service-principal.outputs.stdout }}' | ConvertFrom-Json).sa_job_managed_identity.value            
+            Add-PowerBIWorkspaceUser -WorkspaceId "$($workspace.id.guid)" -PrincipalId "$principalId" -PrincipalType App -AccessRight Contributor -ErrorAction Ignore
