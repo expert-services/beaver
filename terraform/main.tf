@@ -36,7 +36,7 @@ locals {
     dataset    = "actions-workflow-data"
     table      = "data"
     group_id   = var.group_id
-    group_name = "beaver-dev"
+    group_name = "beaver-logs"
   }
 
   docker_config = {
