@@ -59,7 +59,7 @@ resource "azurerm_service_plan" "beaver-asp" {
 }
 
 resource "azurerm_eventhub_namespace" "beaver" {
-  name                = "beaver-${local.org}-eventhub-ns"
+  name                = "beaver-eventhub-ns"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
   sku                 = "Standard"
@@ -455,9 +455,22 @@ variable "app_id" {}
 
 resource "azurerm_linux_web_app" "beaver-app" {
   name                = "beaver-${local.org}"
+  identity {
+      type = "SystemAssigned"
+  }
+
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
+  https_only          = true
+
+  logs {
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
+    failed_request_tracing = true
+  }
 
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
@@ -472,6 +485,10 @@ resource "azurerm_linux_web_app" "beaver-app" {
       docker_image     = local.docker_config.image
       docker_image_tag = local.docker_config.tag
     }
+    http2_enabled                     = true
+    ftps_state                        = "Disabled"
+    health_check_path                 = "/probot"
+    health_check_eviction_time_in_min = 2
   }
 }
 
