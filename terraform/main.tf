@@ -28,44 +28,54 @@ provider "azurerm" {
   features {}
 }
 
-# The following variables are expected to be present as environment variables
-variable "org" {}
+# The following variable are expected to be present as environment variables
 variable "group_id" {}
-variable "webhook_secret" {}
-variable "private_key" {}
-variable "app_id" {}
+locals {
+  org = "oodles-noodles"
+  powerbi_config = {
+    dataset    = "actions-workflow-data"
+    table      = "data"
+    group_id   = var.group_id
+    group_name = "beaver-logs"
+  }
+
+  docker_config = {
+    image = "yjactionsmetrics.azurecr.io/beaver"
+    tag   = "latest"
+  }
+}
 
 resource "azurerm_resource_group" "beaver" {
-  name     = var.resource-group.name
-  location = var.resource-group.location
+  name     = "beaver"
+  location = "eastus"
 }
 
 resource "azurerm_service_plan" "beaver-asp" {
-  name                = var.app-service-plan.name
+  name                = "beaver-appserviceplan"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
-  os_type             = var.app-service-plan.os-type
-  sku_name            = var.app-service-plan.sku-name
+  os_type             = "Linux"
+  sku_name            = "P1v3"
 }
 
 resource "azurerm_eventhub_namespace" "beaver" {
-  name                = "${var.eventhub-namespace.name}-${var.org}"
+  name                = "beaver-eventhub-ns"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
-  sku                 = var.eventhub-namespace.sku
-  capacity            = var.eventhub-namespace.capacity
+  sku                 = "Standard"
+  capacity            = 1
 }
 
 resource "azurerm_eventhub" "beaver" {
-  name                = var.eventhub.name
+  name                = "beaver-eventhub"
   namespace_name      = azurerm_eventhub_namespace.beaver.name
   resource_group_name = azurerm_resource_group.beaver.name
-  partition_count     = var.eventhub.partition-count
-  message_retention   = var.eventhub.message-retention
+  partition_count     = 2
+  message_retention   = 1
 }
 
 resource "azurerm_eventhub_consumer_group" "consumer-group" {
-  name                = var.consumer-group-name
+  name                = "beaver-consumergroup"
   namespace_name      = azurerm_eventhub_namespace.beaver.name
   eventhub_name       = azurerm_eventhub.beaver.name
   resource_group_name = azurerm_resource_group.beaver.name
@@ -82,10 +92,10 @@ resource "random_uuid" "transform5" {}
 resource "random_uuid" "transform6" {}
 
 resource "azurerm_stream_analytics_job" "beaver" {
-  name                = var.stream-analytics-job.name
+  name                = "beaver-sa-job"
   location            = azurerm_resource_group.beaver.location
   resource_group_name = azurerm_resource_group.beaver.name
-  streaming_units     = var.stream-analytics-job.streaming-units
+  streaming_units     = 3
 
   transformation_query = <<QUERY
   WITH
@@ -420,10 +430,10 @@ resource "azurerm_stream_analytics_stream_input_eventhub" "beaver" {
 resource "azurerm_stream_analytics_output_powerbi" "powerbi-stream" {
   name                    = random_uuid.output.result
   stream_analytics_job_id = azurerm_stream_analytics_job.beaver.id
-  dataset                 = var.powerbi-config.dataset
-  table                   = var.powerbi-config.table
-  group_id                = var.group_id
-  group_name              = var.powerbi-config.group-name
+  dataset                 = local.powerbi_config.dataset
+  table                   = local.powerbi_config.table
+  group_id                = local.powerbi_config.group_id
+  group_name              = local.powerbi_config.group_name
 }
 
 # Start the Azure Stream Analytics job 
@@ -438,11 +448,29 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
   ]
 }
 
+# The following variables are expected to be present as environment variables
+variable "webhook_secret" {}
+variable "private_key" {}
+variable "app_id" {}
+
 resource "azurerm_linux_web_app" "beaver-app" {
-  name                = "${var.linux-web-app-name}-${var.org}"
+  name                = "beaver-${local.org}"
+  identity {
+      type = "SystemAssigned"
+  }
+
   resource_group_name = azurerm_resource_group.beaver.name
   location            = azurerm_service_plan.beaver-asp.location
   service_plan_id     = azurerm_service_plan.beaver-asp.id
+  https_only          = true
+
+  logs {
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
+    failed_request_tracing = true
+  }
 
   app_settings = {
     "AZURE_EVENT_HUB_CONNECTION_STRING" = azurerm_eventhub_namespace.beaver.default_primary_connection_string
@@ -454,9 +482,13 @@ resource "azurerm_linux_web_app" "beaver-app" {
 
   site_config {
     application_stack {
-      docker_image     = var.docker-config.image
-      docker_image_tag = var.docker-config.tag
+      docker_image     = local.docker_config.image
+      docker_image_tag = local.docker_config.tag
     }
+    http2_enabled                     = true
+    ftps_state                        = "Disabled"
+    health_check_path                 = "/probot"
+    health_check_eviction_time_in_min = 2
   }
 }
 
