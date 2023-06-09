@@ -451,8 +451,10 @@ resource "azurerm_linux_web_app" "beaver-app" {
 
   logs {
     http_logs {
-      retention_in_days = 4
-      retention_in_mb   = 10
+      file_system{
+        retention_in_days = 4
+        retention_in_mb   = 25
+      }
     }
     failed_request_tracing = true
   }
