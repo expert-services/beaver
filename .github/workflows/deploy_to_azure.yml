@@ -17,6 +17,10 @@ env:
   client_id: ${{ secrets.CLIENT_ID }}
   client_secret: ${{ secrets.CLIENT_SECRET }}
   tenant_id: ${{ secrets.TENANT_ID }}
+  subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+  TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+  TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
+  TF_VAR_app_id: ${{ secrets.APP_ID }}
 jobs: 
   deploy:
       runs-on: ubuntu-latest
@@ -41,7 +45,7 @@ jobs:
           uses: actions/cache@v3
           with:
             path: "~/.local/share/powershell/Modules"
-            key: ${{ runner.os }}-MicrosoftPowerBIMgmt
+            key: ${{ runner.os }}-MicrosoftPowerBIMgmt-Az
         
         - name: Install required PowerShell modules
           if: steps.cacher.outputs.cache-hit != 'true'
@@ -49,12 +53,9 @@ jobs:
           run: |
             Set-PSRepository PSGallery -InstallationPolicy Trusted
             Install-Module MicrosoftPowerBIMgmt -ErrorAction Stop
+            Install-Module Az -ErrorAction Stop
         
         - name: Deploy
-          env:
-            TF_VAR_webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-            TF_VAR_private_key: ${{ secrets.PRIVATE_KEY }}
-            TF_VAR_app_id: ${{ secrets.APP_ID }}
           working-directory: terraform
           shell: pwsh
           run: |
@@ -64,8 +65,15 @@ jobs:
             $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
             if ($null -eq $workspace) {$workspace = New-PowerBIWorkspace -Name "beaver-logs"}
             $env:TF_VAR_group_id = $($workspace.id.guid)
-            $env:TF_VAR_org = $env:GITHUB_REPOSITORY_OWNER
-            terraform init && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
+            $env:TF_VAR_org = $env:GITHUB_REPOSITORY_OWNER            
+            terraform init -backend-config="resource_group_name=tf-state" `
+                           -backend-config="storage_account_name=beaverstate" `
+                           -backend-config="container_name=$env:GITHUB_REPOSITORY_OWNER-tfstate" `
+                           -backend-config="key=prod.terraform.tfstate" `
+                           -backend-config="use_oidc=true" `
+                           -backend-config="subscription_id=$env:subscription_id" `
+                           -backend-config="tenant_id=$env:tenant_id" `
+                           -backend-config="client_id=$env:client_id" && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
         
         - name: Extract Service Principal ID
           id: extract-service-principal
