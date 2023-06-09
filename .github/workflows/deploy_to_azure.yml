@@ -1,5 +1,6 @@
 name: Deploy to Azure
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
     paths:
@@ -63,6 +64,7 @@ jobs:
             $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
             if ($null -eq $workspace) {$workspace = New-PowerBIWorkspace -Name "beaver-logs"}
             $env:TF_VAR_group_id = $($workspace.id.guid)
+            $env:TF_VAR_org = $env:GITHUB_REPOSITORY_OWNER
             terraform init && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
         
         - name: Extract Service Principal ID
