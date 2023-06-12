@@ -13,9 +13,9 @@ terraform {
 
 provider "azurerm" {
   use_oidc        = true
-  subscription_id = "24edc3b6-c013-4246-a10d-a237e66a863c"
-  tenant_id       = "5fe9aea4-03da-41b3-9703-c7aecd10de63"
-  client_id       = "3d9d2c4a-caf0-482b-ac57-ea734414f596"
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+  client_id       = var.client_id
   features {}
 }
 
@@ -25,6 +25,9 @@ variable "group_id" {}
 variable "webhook_secret" {}
 variable "private_key" {}
 variable "app_id" {}
+variable "client_id" {}
+variable "subscription_id" {}
+variable "tenant_id" {}
 
 resource "azurerm_resource_group" "beaver" {
   name     = var.resource-group.name
