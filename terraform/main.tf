@@ -8,7 +8,7 @@ variable "client_id" {}
 variable "subscription_id" {}
 variable "tenant_id" {}
 
-terraform { 
+terraform {
   backend "azurerm" {}
 }
 
@@ -433,9 +433,9 @@ resource "azurerm_stream_analytics_job_schedule" "beaver" {
 }
 
 resource "azurerm_linux_web_app" "beaver-app" {
-  name                = "${var.linux-web-app-name}-${var.org}"
+  name = "${var.linux-web-app-name}-${var.org}"
   identity {
-      type = "SystemAssigned"
+    type = "SystemAssigned"
   }
 
   resource_group_name = azurerm_resource_group.beaver.name
@@ -445,7 +445,7 @@ resource "azurerm_linux_web_app" "beaver-app" {
 
   logs {
     http_logs {
-      file_system{
+      file_system {
         retention_in_days = 4
         retention_in_mb   = 25
       }
