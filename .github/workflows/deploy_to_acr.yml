@@ -26,13 +26,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Log into registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ${{ vars.ACR_ENDPOINT }}
           username: ${{ vars.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
       - name: Build & Push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
