@@ -34,47 +34,66 @@ jobs:
             client-id: ${{ secrets.CLIENT_ID }}
             tenant-id: ${{ secrets.TENANT_ID }}
             subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+            enable-AzPSSession: true 
         
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v2
           with:
             terraform_version: 1.4.6
         
-        - name: Setup PowerShell module cache
-          id: cacher
+        - name: Setup PowerBI PowerShell module cache
+          id: powerbi-cache
           uses: actions/cache@v3
           with:
             path: "~/.local/share/powershell/Modules"
-            key: ${{ runner.os }}-MicrosoftPowerBIMgmt-Az
+            key: ${{ runner.os }}-MicrosoftPowerBIMgmt
         
-        - name: Install required PowerShell modules
-          if: steps.cacher.outputs.cache-hit != 'true'
+        - name: Install PowerBI PowerShell module
+          if: steps.powerbi-cache.outputs.cache-hit != 'true'
           shell: pwsh
           run: |
             Set-PSRepository PSGallery -InstallationPolicy Trusted
             Install-Module MicrosoftPowerBIMgmt -ErrorAction Stop
-            Install-Module Az -ErrorAction Stop
-        
-        - name: Deploy
-          working-directory: terraform
-          shell: pwsh
-          run: |
-            $password = ConvertTo-SecureString $env:TF_VAR_client_secret -AsPlainText -Force
-            $credential = New-Object System.Management.Automation.PSCredential ($env:TF_VAR_client_id, $password)
-            Connect-PowerBIServiceAccount -Tenant $env:TF_VAR_tenant_id -ServicePrincipal -Credential $credential | Out-Null
-            $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
-            if ($null -eq $workspace) {$workspace = New-PowerBIWorkspace -Name "beaver-logs"}
-            $env:TF_VAR_group_id = $($workspace.id.guid)
-            $env:TF_VAR_org = $env:GITHUB_REPOSITORY_OWNER            
-            terraform init -backend-config="resource_group_name=tf-state" `
-                           -backend-config="storage_account_name=beaverstate" `
-                           -backend-config="container_name=$env:GITHUB_REPOSITORY_OWNER-tfstate" `
-                           -backend-config="key=prod.terraform.tfstate" `
-                           -backend-config="use_oidc=true" `
-                           -backend-config="subscription_id=$env:TF_VAR_subscription_id" `
-                           -backend-config="tenant_id=$env:TF_VAR_tenant_id" `
-                           -backend-config="client_id=$env:TF_VAR_client_id" && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
-        
+            
+        - name: Deploy PowerBI Workspace and Azure Infrastructure
+          uses: azure/powershell@v1
+          with:
+            inlineScript: |
+              $storageAccountName = "beaverstate$env:GITHUB_REPOSITORY_OWNER".Replace('-','').ToLower()
+              if ($storageAccountName.Length -gt 24) {$storageAccountName = $storageAccountName.subString(0,24)}
+              $storageAccount = Get-AzStorageAccount | Where-Object {$_.StorageAccountName -like $storageAccountName}
+              if ($null -eq $storageAccount) {
+                New-AzResourceGroup -Name beaver-tf-state -Location eastus | Out-Null
+                $storageAccount = New-AzStorageAccount -ResourceGroupName beaver-tf-state `
+                                                       -Name $storageAccountName `
+                                                       -Location eastus `
+                                                       -SkuName Standard_GRS `
+                                                       -Kind StorageV2 `
+                                                       -EnableHttpsTrafficOnly $True
+                $container = New-AzStorageContainer -Name $env:GITHUB_REPOSITORY_OWNER-tfstate -Context $storageAccount.Context
+              }
+            
+              # Create PowerBI workspace if needed
+              $password = ConvertTo-SecureString $env:TF_VAR_client_secret -AsPlainText -Force
+              $credential = New-Object System.Management.Automation.PSCredential ($env:TF_VAR_client_id, $password)
+              Connect-PowerBIServiceAccount -Tenant $env:TF_VAR_tenant_id -ServicePrincipal -Credential $credential | Out-Null
+              $workspace = Get-PowerBIWorkspace -All | Where-Object {$_.name -like "beaver-logs"} 
+              if ($null -eq $workspace) {$workspace = New-PowerBIWorkspace -Name "beaver-logs"}
+              $env:TF_VAR_group_id = $($workspace.id.guid)
+
+              # Deploy infrastructure using Terraform CLI
+              $env:TF_VAR_org = $env:GITHUB_REPOSITORY_OWNER
+              Set-Location -Path terraform
+              terraform init -backend-config="resource_group_name=$($storageAccount.ResourceGroupName)" `
+                             -backend-config="storage_account_name=$($storageAccount.StorageAccountName)" `
+                             -backend-config="container_name=$env:GITHUB_REPOSITORY_OWNER-tfstate" `
+                             -backend-config="key=prod.terraform.tfstate" `
+                             -backend-config="use_oidc=true" `
+                             -backend-config="subscription_id=$env:TF_VAR_subscription_id" `
+                             -backend-config="tenant_id=$env:TF_VAR_tenant_id" `
+                             -backend-config="client_id=$env:TF_VAR_client_id" && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
+            azPSVersion: "latest"
+           
         - name: Extract Service Principal ID
           id: extract-service-principal
           working-directory: terraform
