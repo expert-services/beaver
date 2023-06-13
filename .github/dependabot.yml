@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions" # See documentation for possible values
+    directory: "/.github/workflows" # Location of package manifests
+    schedule:
+      interval: "daily"
+  
+  # Maintain dependencies for Terraform
+  - package-ecosystem: "terraform" # See documentation for possible values
+    directory: "/terraform" # Location of package manifests
+    schedule:
+      interval: "daily"
+  
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
