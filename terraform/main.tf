@@ -1,3 +1,13 @@
+# The following variables are expected to be present as environment variables 
+variable "org" {}
+variable "group_id" {}
+variable "webhook_secret" {}
+variable "private_key" {}
+variable "app_id" {}
+variable "client_id" {}
+variable "subscription_id" {}
+variable "tenant_id" {}
+
 terraform { 
   backend "azurerm" {}
 }
@@ -18,16 +28,6 @@ provider "azurerm" {
   client_id       = var.client_id
   features {}
 }
-
-# The following variables are expected to be present as environment variables
-variable "org" {}
-variable "group_id" {}
-variable "webhook_secret" {}
-variable "private_key" {}
-variable "app_id" {}
-variable "client_id" {}
-variable "subscription_id" {}
-variable "tenant_id" {}
 
 resource "azurerm_resource_group" "beaver" {
   name     = var.resource-group.name
