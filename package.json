@@ -42,7 +42,7 @@
   "devDependencies": {
     "@travi/any": "^2.1.5",
     "eslint": "^8.17.0",
-    "eslint-config-standard": "^17.0.0",
+    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.0.0",
