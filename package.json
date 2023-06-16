@@ -37,7 +37,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.11.0",
     "probot": "12.3.0",
-    "proxy-agent": "^5.0.0"
+    "proxy-agent": "^6.2.1"
   },
   "devDependencies": {
     "@travi/any": "^2.1.5",
