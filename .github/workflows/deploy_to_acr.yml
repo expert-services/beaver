@@ -36,5 +36,5 @@ jobs:
         with:
           push: true
           build-args: |
-            version=${{ env.GITHUB_SHA }}
-          tags: ${{ vars.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}:${{ env.GITHUB_SHA }}
+            version=${{ env.GITHUB_WORKFLOW_SHA }}
+          tags: ${{ vars.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}:${{ env.GITHUB_WORKFLOW_SHA }}
