@@ -10,7 +10,7 @@ Connection strings (and other credentials used for authentication) are stored an
 Different environments support the process of shipping and vizualizing workflow log data
 - GitHub hosts the Beaver application (this repository), the REST API, as well as the Organization that the GitHub App is installed on
 - The infrasturcure required to recieve the GitHub App webhooks and obtain workflow logs exists in Azure and is managed with Terraform
-- Data storage requirements and vizualization tools can exist leveraging the Office 365 ecosystem or Open Source components
+- Data storage requirements and visualization tools can exist leveraging the Office 365 ecosystem or Open Source components
 
 ![image](https://github.com/octodemo/beaver/assets/107562400/60b6c501-52d6-4737-b2ca-405805b9e881)
 
@@ -59,20 +59,36 @@ Infrastructure is required to process webhook events, as well as gather and tran
 > **Note**
 > In this case it is assumed that a Federated credential for GitHub Actions has been [correctly configured](https://github.com/marketplace/actions/azure-login#configure-a-federated-credential-to-use-oidc-based-authentication).
 
-
 ### Terraform
 Use GitHub Actions 🚀 to execute Terraform CLI commands 
 
-1. Copy [terraform/main.tf](terraform/main.tf) into the repository created during Step 4 of the Requirements section
-2. Create a separate Azure Storage Account (StorageV2) to maintain the Terraform state
-3. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 4 of the Requirements section
-4. Edit the `locals` parameter to include the GitHub Org that has the GitHub App installed. Additionally, provide a group ID (a UUID) for the PowerBI dataset destination. To obtain a group ID, navigate to a particular Power BI Workspace, and use the UUID immediately after `https://app.powerbi.com/groups/` in the URL of the browser 
-5. Create a Container for the Terraform state (e.g., octodemo-tfstate)
-6. Edit the `terraform backend` configuration to reference the previously created storage account and container
-7. Edit the `azurerm` provider properties to specify the correct `subscription_id`, `tenant_id`, and `client_id`
-8. Commit changes to observe the `deploy_to_azure.yml` workflow execute
+1. Copy the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) into the repository created during Step 4 of the Requirements section
+2. Copy the contents of [terraform/](terraform/) into the repository created during Step 4 of the Requirements section
+   1. Optionally edit the default values in the `variables.tf` file copied in Step 1
+3. Upon committing the files Step 2 observe the `deploy_to_azure.yml` workflow execute
+
 > **Note**
-> If using the [terraform/main.tf](terraform/main.tf) template, resource will be deployed in the East US region
+> If using the default values in [terraform/variables.tf](terraform/variables.tf), resources will be deployed in the East US region
+
+#### State Management
+Code is included in the [.github/workflows/deploy_to_azure.yml](.github/workflows/deploy_to_azure.yml) to boostrap and maintain the needed Azure infrastructure for Terraform state files. The workflow creates an Azure Storage Account `beaverstate<GITHUB_ORG>` (omitting `-` characters, limiting the name to 24 characters), as well as a storage container named `<GITHUB_ORG>-tfstate` if they are not present. This Azure Storage Account is then referenced as part of a backend configuration for Terraform state when initializing with the `terraform` CLI. If these values create a collision or are not up to the desired naming standards, change them before executing the workflow.
+
+```powershell 
+...
+...
+
+terraform init -backend-config="resource_group_name=$($storageAccount.ResourceGroupName)" `
+               -backend-config="storage_account_name=$($storageAccount.StorageAccountName)" `
+               -backend-config="container_name=$env:GITHUB_REPOSITORY_OWNER-tfstate" `
+               -backend-config="key=prod.terraform.tfstate" `
+               -backend-config="use_oidc=true" `
+               -backend-config="subscription_id=$env:TF_VAR_subscription_id" `
+               -backend-config="tenant_id=$env:TF_VAR_tenant_id" `
+               -backend-config="client_id=$env:TF_VAR_client_id" && terraform plan -out out.tfplan && terraform apply -auto-approve out.tfplan
+
+...
+...
+```
 
 ### Sample Power BI Dashboard
 A [PowerBI template file](actions-insights.pbit) (`.pbit`) exists as a starting point to quickly begin dashboarding data set to a PowerBI streaming data set. 
