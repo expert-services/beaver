@@ -130,4 +130,4 @@ To install this Probot application, follow these steps:
 4. On a terminal run the following command: `npm start`
 
 ## Acknowledgements
-The code for this application was originally drafted by @enyil and @decyjpher
+The code for this application was originally drafted by [@enyil](https://github.com/enyil) and [@decyjphr](https://github.com/decyjphr)
