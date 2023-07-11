@@ -5,13 +5,7 @@ on:
   push:
     branches: ['main']
     paths-ignore:
-      - '.github/workflows/**'
-      - 'README.md'
-      - 'terraform/**'
-  pull_request:
-    branches: ['main']
-    paths-ignore:
-      - '.github/workflows/**'
+      - '.github/**'
       - 'README.md'
       - 'terraform/**'
 
