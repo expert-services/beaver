@@ -132,7 +132,7 @@ class PostgreSQLConnector {
             // check if 
             for (const jobData of eventData.jobs) {
               const jobQuery = {
-                text: 'INSERT INTO jobs (job_id, jobName, sequence, labelsRequested, runnerGroupRequested, runnerGroupMatched, runnerOS, runnerImage, runnerImageProvisioner, permissions, actions, startedAt, completedAt, conclusion, logs, run_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id',
+                text: 'INSERT INTO jobs (job_id, jobName, sequence, labelsRequested, runnerGroupRequested, runnerGroupMatched, runnerOS, runnerImage, runnerImageProvisioner, permissions, actions, startedAt, completedAt, conclusion, logs, run_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id',
                 values: [
                   jobData.id,
                   jobData.jobName,
