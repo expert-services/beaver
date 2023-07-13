@@ -109,7 +109,7 @@ class PostgreSQLConnector {
                 eventData.updated_at,
                 eventData.actor,
                 eventData.run_attempt,
-                eventData.referenced_workflows,
+                {referenced_workflows: eventData.referenced_workflows},
                 eventData.run_started_at,
                 eventData.triggering_actor,
                 eventData.jobs_url,
