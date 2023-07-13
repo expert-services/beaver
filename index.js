@@ -1,6 +1,3 @@
-const { Blob } = require('buffer');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
 const JSZip = require("jszip");
 const WorkflowLogsEventStream = require('./workflowLogsEventStream');
@@ -54,17 +51,7 @@ module.exports = (app) => {
     // Store the ArrayBuffer as a Blob
     // Comment these lines after testing
     const logs = response.data;
-    const blob = new Blob([logs], {
-      type: "application/zip",
-    });
-
-    // Convert it to a Buffer and write to a zip file
-    // Comment these lines below after testing
-    const filePath = path.join(__dirname, 'logs.zip');
-    fs.writeFile(filePath, Buffer.from(logs), (err) => {
-      if (err) throw err;
-      console.log(`The ${filePath} has been saved!`);
-    });
+    
 
     // Start a stream to unzip the logs
     // parse them to enrich the events
@@ -84,7 +71,7 @@ module.exports = (app) => {
       await sendLogs(workflow_run, app.log);
     });
   });
-
+/*
   // Handle workflow_job events. 
   // This is not required for the current implementation as we are able 
   // to get most of the information from the workflow_run event
@@ -136,6 +123,7 @@ module.exports = (app) => {
     app.log.info(`Sending event ${JSON.stringify(workflow_job, null, 2)}`);
     await sendJobLogs(workflow_job, app.log);
   });
+  */
 };
 
 // The logs come as a tar file with multiple files
