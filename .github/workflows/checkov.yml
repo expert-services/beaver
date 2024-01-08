@@ -15,7 +15,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - name : Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run Checkov
         run: docker run -t -v ${{ github.workspace }}/terraform:/tf --workdir /tf bridgecrew/checkov --directory /tf -o sarif --soft-fail
       - name: Upload SARIF file
