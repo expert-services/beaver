@@ -40,7 +40,7 @@
     "proxy-agent": "^6.2.1"
   },
   "devDependencies": {
-    "@travi/any": "^2.1.5",
+    "@travi/any": "^3.1.0",
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
