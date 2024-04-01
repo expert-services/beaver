@@ -50,7 +50,7 @@
     "jest": "^29.5.0",
     "nock": "^13.5.4",
     "nodemon": "^3.1.0",
-    "smee-client": "^1.2.2"
+    "smee-client": "^2.0.1"
   },
   "engines": {
     "node": ">= 10.13.0"
