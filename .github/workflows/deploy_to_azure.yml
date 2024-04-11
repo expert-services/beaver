@@ -56,7 +56,7 @@ jobs:
             Install-Module MicrosoftPowerBIMgmt -ErrorAction Stop
             
         - name: Deploy PowerBI Workspace and Azure Infrastructure
-          uses: azure/powershell@v1
+          uses: azure/powershell@v2
           with:
             inlineScript: |
               $storageAccountName = "beaverstate$env:GITHUB_REPOSITORY_OWNER".Replace('-','').ToLower()
