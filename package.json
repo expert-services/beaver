@@ -36,7 +36,7 @@
     "jszip": "^3.10.1",
     "morgan": "^1.10.0",
     "pg": "^8.11.5",
-    "probot": "12.3.3",
+    "probot": "13.2.1",
     "proxy-agent": "^6.4.0"
   },
   "devDependencies": {
