@@ -31,7 +31,7 @@
     "@azure/event-hubs": "^5.11.4",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@probot/adapter-aws-lambda-serverless": "^3.0.4",
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "js-yaml": "^4.1.0",
     "jszip": "^3.10.1",
     "morgan": "^1.10.0",
