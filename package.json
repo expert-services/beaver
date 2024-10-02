@@ -28,7 +28,7 @@
     "test:integration:debug": "LOG_LEVEL=debug DEBUG=nock run-s test:integration"
   },
   "dependencies": {
-    "@azure/event-hubs": "^5.11.4",
+    "@azure/event-hubs": "^5.12.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@probot/adapter-aws-lambda-serverless": "^3.0.4",
     "axios": "^1.7.4",
